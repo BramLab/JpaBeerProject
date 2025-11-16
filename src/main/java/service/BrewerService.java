@@ -1,5 +1,7 @@
 package service;
 
+import config.JpaConfig;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import model.Brewer;
 import repository.BrewerRepository;
@@ -12,6 +14,7 @@ public class BrewerService {
 
     public void create(Brewer entity) {
         brewerRepository.create(entity);
+        //brewerRepository.createGeneric((Brewer)entity);
     }
 
     public Optional<Brewer> findById(long id){

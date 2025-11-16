@@ -1,12 +1,16 @@
 package repository;
 
 import config.JpaConfig;
+import jakarta.persistence.Entity;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.EntityTransaction;
 import model.Beer;
 import model.Brewer;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedType;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,7 +25,35 @@ public class BrewerRepository {
     //o findBrewerByName(String name)
     //o findAllBrewersWithBeerCount()
 
+//    public <T> Object createGeneric(T entity) {
+//        EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
+////        Class clazz = entity.getClass();
+////        clazz.cast(entity);
+//
+//        System.out.println((entity.getClass().getName()));
+//
+//        System.out.println(Brewer.class.getAnnotations().toString());
+//        for(AnnotatedType annotatedType:Entity.class.getAnnotatedInterfaces())
+//            for(Annotation annotation:annotatedType.getAnnotations()){
+//                System.out.println(annotation.toString());
+//            }
+//
+//        Method[] declaredMethods = Brewer.class.getDeclaredMethods();
+//        for (Method method : declaredMethods) {
+//            System.out.println(method.getName() + method.isSynthetic() +  method.isBridge());
+////            if (!method.isSynthetic()) {
+////                System.out.println(String.format("Method '%s' is not annotated.", method), method.getAnnotation(jakarta.persistence.Entity.class));
+////            }
+//        }
+//
+//
+//        em.persist(entity);
+//        System.out.println(entity.getClass().getName());
+//        return null;
+//    }
+
     public void create(Brewer brewer) {
+        //System.out.println(brewer.getName());
         EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
         try{
             EntityTransaction transaction = em.getTransaction();

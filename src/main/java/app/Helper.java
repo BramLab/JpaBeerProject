@@ -19,6 +19,16 @@ public class Helper {
         }
     }
 
+    static public long scanLong(String msg) {
+        while (true) {
+            try {
+                return Long.parseLong(scanString(msg));
+            } catch (NumberFormatException e) {
+                System.out.println("Er wordt een getal verwacht.");
+            }
+        }
+    }
+
 }
 
 
