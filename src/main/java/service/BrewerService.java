@@ -4,9 +4,7 @@ import config.JpaConfig;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.EntityTransaction;
-import model.Beer;
 import model.Brewer;
-import repository.BrewerRepository;
 import repository.GenericRepository;
 import repository.GenericRepositoryImpl;
 
@@ -20,7 +18,7 @@ public class BrewerService {
         EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
         try{
             em.getTransaction().begin();
-            brewerRepository.save(em, brewer);
+            brewerRepository.create(em, brewer);
             em.getTransaction().commit();
         } finally {
             em.close();
@@ -32,8 +30,7 @@ public class BrewerService {
         Brewer brewer;
         try{
             brewer = brewerRepository.findById(em, id);
-            //int fetchAllHack = brewer.getBeers().size();
-            int fetchAllHack = brewer != null ? brewer.getBeers().size() : 0;
+            //int fetchAllHack = brewer != null ? brewer.getBeers().size() : 0;
         } catch(EntityNotFoundException ignored){
             return Optional.empty();
         } catch (Exception e) {

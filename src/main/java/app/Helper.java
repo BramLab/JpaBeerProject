@@ -29,6 +29,16 @@ public class Helper {
         }
     }
 
+    static public float scanFloat(String msg) {
+        while (true) {
+            try {
+                return Float.parseFloat(scanString(msg));
+            } catch (NumberFormatException e) {
+                System.out.println("Er wordt een getal verwacht.");
+            }
+        }
+    }
+
 }
 
 

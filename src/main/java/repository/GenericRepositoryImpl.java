@@ -2,8 +2,11 @@ package repository;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaQuery;
+import org.junit.platform.commons.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 
@@ -16,7 +19,7 @@ public class GenericRepositoryImpl<T, ID> implements GenericRepository<T, ID> {
     }
 
     @Override
-    public T save(EntityManager entityManager, T entity) {
+    public T create(EntityManager entityManager, T entity) {
         entityManager.persist(entity);
         return entity;
     }
@@ -42,18 +45,28 @@ public class GenericRepositoryImpl<T, ID> implements GenericRepository<T, ID> {
     @Override
     public T findById(EntityManager entityManager, ID id) {
         T entity = entityManager.find(entityClass, id);
-        System.out.println(Arrays.toString(entity.getClass().getDeclaredFields()));
+        // https://stackoverflow.com/questions/51837798/get-associated-getter-setter-of-field-member-variable
+        // Claude.ai can simplify this, but this is how i wrote it.
         for  (Field field : entity.getClass().getDeclaredFields()) {
-            System.out.println(field.getName() + Arrays.toString(field.getAnnotations()));
             if (Arrays.toString(field.getAnnotations()).contains("LAZY")){
-                //int lazyLoadingHack = field
-                // todo:
-                https://stackoverflow.com/questions/51837798/get-associated-getter-setter-of-field-member-variable
+                String probableGetterName = "get" + field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1);
+
+                for (Method method : entity.getClass().getDeclaredMethods()) {
+                    if ( (method.getName()).equals(probableGetterName)) {
+                        try {
+                            List result = (List<Object>) method.invoke(entity);
+                            int lazyLoadingHack = result.size();
+                        } catch (InvocationTargetException e) {
+                            throw new RuntimeException(e);
+                        } catch (IllegalAccessException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                }
+
             }
         }
-
-
-        return entityManager.find(entityClass, id);
+        return entity;
     }
 
     @Override

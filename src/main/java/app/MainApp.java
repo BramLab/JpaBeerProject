@@ -12,8 +12,7 @@ import service.CategoryService;
 import java.util.List;
 import java.util.Optional;
 
-import static app.Helper.scanLong;
-import static app.Helper.scanString;
+import static app.Helper.*;
 
 
 public class MainApp {
@@ -43,9 +42,6 @@ public class MainApp {
     }
 
 
-
-
-
     void manageBreweries(){
         Menu menu = new Menu("\nBrouwerijen\n", "Keuze: ", "0");
         menu.addMenuOption("1", "Toevoegen", () -> addBrewery() );
@@ -66,7 +62,7 @@ public class MainApp {
         if (brewer.isPresent()) {
             System.out.println(brewer.get());
             for (Beer beer : brewer.get().getBeers()) {
-                System.out.println(beer);
+                System.out.println("  " + beer);
             }
         }else {
             System.out.println("Niet gevonden.");
@@ -114,7 +110,16 @@ public class MainApp {
         menu.run();
     }
 
-    void addBeer(){}
+    void addBeer(){
+        beerService.create(new Beer(scanString("Naam: "),
+                scanFloat("alcoholPercentage: "),
+                scanFloat("prijs: "),
+                brewerService.findById(scanInt("id brouwerij: ")).get(),
+                categoryService.findById(scanInt("id categorie: ")).get()
+
+        ));
+        //String name, float alcoholPercentage, float price, Brewer brewer, Category category
+    }
 
     void findBeer(){}
 
@@ -122,7 +127,15 @@ public class MainApp {
 
     void updateBeer(){}
 
-    void deleteBeer(){}
+    void deleteBeer(){
+        Optional<Beer> beer = beerService.findById(scanLong("Id: "));
+        if (beer.isPresent()){
+            System.out.println(beer.get());
+            beerService.deleteById(beer.get().getId());
+        } else {
+            System.out.println("Niet gevonden.");
+        }
+    }
 
     void manageCategories(){
         Menu menu = new Menu("\nCategoriën\n", "Keuze: ", "0");
@@ -136,12 +149,19 @@ public class MainApp {
     }
 
     void addCategory(){
-        categoryService.create(new Category(scanString("Naam: "), scanString("Locatie: ")));
+        categoryService.create(new Category(scanString("Naam: "), scanString("Omschrijving: ")));
     }
 
     void findCategory(){
         Optional<Category> category = categoryService.findById(scanLong("Id: "));
-        System.out.println(category.isPresent() ? category.get() : "Niet gevonden.");
+        if (category.isPresent()) {
+            System.out.println(category.get());
+            for (Beer beer : category.get().getBeers()) {
+                System.out.println("  " + beer);
+            }
+        }else {
+            System.out.println("Niet gevonden.");
+        }
     }
 
     void findAllCategories(){
@@ -151,9 +171,27 @@ public class MainApp {
         }
     }
 
-    void updateCategory(){}
+    void updateCategory(){
+        Optional<Category> category = categoryService.findById(scanLong("Id: "));
+        if (category.isPresent()){
+            System.out.println(category.get());
+            category.get().setName(scanString("Naam: "));
+            category.get().setDescription(scanString("Omschrijving: "));
+            categoryService.update(category.get());
+        } else {
+            System.out.println("Niet gevonden.");
+        }
+    }
 
-    void deleteCategory(){}
+    void deleteCategory(){
+        Optional<Category> category = categoryService.findById(scanLong("Id: "));
+        if (category.isPresent()){
+            System.out.println(category.get());
+            categoryService.deleteById(category.get().getId());
+        } else {
+            System.out.println("Niet gevonden.");
+        }
+    }
 
     private static void insertTestData() {
         Brewer brewer1 = new Brewer("brewer1", "Bx");
@@ -169,7 +207,7 @@ public class MainApp {
         categoryService.create(category2);
         categoryService.create(category3);
         Beer beer1 = new Beer("bier1", 1, 2, brewer1,  category1);
-        Beer beer2 = new Beer("bier2", 1, 2, brewer2,  category2);
+        Beer beer2 = new Beer("bier2", 1, 2, brewer1,  category3);
         Beer beer3 = new Beer("bier3", 1, 2, brewer3,  category3);
         beerService.create(beer1);
         beerService.create(beer2);

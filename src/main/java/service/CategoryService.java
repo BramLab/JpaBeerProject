@@ -3,9 +3,8 @@ package service;
 import config.JpaConfig;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
-import model.Brewer;
+import jakarta.persistence.EntityTransaction;
 import model.Category;
-import repository.CategoryRepository;
 import repository.GenericRepository;
 import repository.GenericRepositoryImpl;
 
@@ -19,14 +18,12 @@ public class CategoryService {
     public void create(Category entity) {
         EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
         try{
-            em = JpaConfig.getEntityManagerFactory().createEntityManager();
             em.getTransaction().begin();
-            categoryRepository.save(em, entity);
+            categoryRepository.create(em, entity);
             em.getTransaction().commit();
         } finally {
             em.close();
         }
-
     }
 
     public Optional<Category> findById(long id){
@@ -49,12 +46,30 @@ public class CategoryService {
 
     public void update(Category category){
         EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
-        categoryRepository.update(em, category);
+        try{
+            em.getTransaction().begin();
+            categoryRepository.update(em, category);
+            em.getTransaction().commit();
+        } finally {
+            em.close();
+        }
     }
 
     public void deleteById(long id){
         EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
-        categoryRepository.deleteById(em, id);
+        try{
+            Category category = categoryRepository.findById(em, id);
+            if (category != null) {
+                EntityTransaction transaction = em.getTransaction();
+                transaction.begin();
+                categoryRepository.deleteById(em, id);
+                transaction.commit();
+            }else {
+                throw new EntityNotFoundException("Category with id " + id + " not found");
+            }
+        }finally {
+            em.close();
+        }
     }
     
 }
