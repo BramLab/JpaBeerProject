@@ -1,0 +1,248 @@
+
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+import java.io.Serializable;
+import java.lang.reflect.ParameterizedType;
+import java.util.List;
+import java.util.Optional;
+
+/**
+ * Generic JPA Repository implementation without Spring
+ * @param <T> Entity type
+ * @param <ID> Primary key type
+ */
+public abstract class GenericRepository<T, ID extends Serializable> {
+
+    private final Class<T> entityClass;
+    private final EntityManager entityManager;
+
+    @SuppressWarnings("unchecked")
+    public GenericRepository(EntityManager entityManager) {
+        this.entityManager = entityManager;
+        this.entityClass = (Class<T>) ((ParameterizedType) getClass()
+                .getGenericSuperclass())
+                .getActualTypeArguments()[0];
+    }
+
+    protected EntityManager getEntityManager() {
+        return entityManager;
+    }
+
+    protected Class<T> getEntityClass() {
+        return entityClass;
+    }
+
+    // CREATE
+    public T save(T entity) {
+        if (entityManager.contains(entity)) {
+            return entityManager.merge(entity);
+        } else {
+            entityManager.persist(entity);
+            return entity;
+        }
+    }
+
+    // READ
+    public Optional<T> findById(ID id) {
+        T entity = entityManager.find(entityClass, id);
+        return Optional.ofNullable(entity);
+    }
+
+    public List<T> findAll() {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<T> cq = cb.createQuery(entityClass);
+        Root<T> root = cq.from(entityClass);
+        cq.select(root);
+        return entityManager.createQuery(cq).getResultList();
+    }
+
+    public List<T> findAll(int page, int size) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<T> cq = cb.createQuery(entityClass);
+        Root<T> root = cq.from(entityClass);
+        cq.select(root);
+
+        TypedQuery<T> query = entityManager.createQuery(cq);
+        query.setFirstResult(page * size);
+        query.setMaxResults(size);
+
+        return query.getResultList();
+    }
+
+    public long count() {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+        Root<T> root = cq.from(entityClass);
+        cq.select(cb.count(root));
+        return entityManager.createQuery(cq).getSingleResult();
+    }
+
+    // UPDATE
+    public T update(T entity) {
+        return entityManager.merge(entity);
+    }
+
+    // DELETE
+    public void delete(T entity) {
+        if (entityManager.contains(entity)) {
+            entityManager.remove(entity);
+        } else {
+            entityManager.remove(entityManager.merge(entity));
+        }
+    }
+
+    public void deleteById(ID id) {
+        findById(id).ifPresent(this::delete);
+    }
+
+    public void deleteAll() {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<T> cq = cb.createQuery(entityClass);
+        Root<T> root = cq.from(entityClass);
+        cq.select(root);
+
+        List<T> entities = entityManager.createQuery(cq).getResultList();
+        entities.forEach(this::delete);
+    }
+
+    public boolean existsById(ID id) {
+        return findById(id).isPresent();
+    }
+
+    // Utility method for executing in transaction
+    public void executeInTransaction(Runnable action) {
+        try {
+            entityManager.getTransaction().begin();
+            action.run();
+            entityManager.getTransaction().commit();
+        } catch (Exception e) {
+            if (entityManager.getTransaction().isActive()) {
+                entityManager.getTransaction().rollback();
+            }
+            throw e;
+        }
+    }
+
+    public <R> R executeInTransaction(java.util.function.Supplier<R> action) {
+        try {
+            entityManager.getTransaction().begin();
+            R result = action.get();
+            entityManager.getTransaction().commit();
+            return result;
+        } catch (Exception e) {
+            if (entityManager.getTransaction().isActive()) {
+                entityManager.getTransaction().rollback();
+            }
+            throw e;
+        }
+    }
+}
+
+
+
+import javax.persistence.*;
+
+// 1. Define your entity
+@Entity
+@Table(name = "users")
+class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String name;
+    private String email;
+
+    // Constructors, getters, setters
+    public User() {}
+
+    public User(String name, String email) {
+        this.name = name;
+        this.email = email;
+    }
+
+    // Getters and setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+}
+
+// 2. Create specific repository by extending GenericRepository
+class UserRepository extends GenericRepository<User, Long> {
+
+    public UserRepository(EntityManager entityManager) {
+        super(entityManager);
+    }
+
+    // Add custom query methods
+    public List<User> findByName(String name) {
+        TypedQuery<User> query = getEntityManager()
+            .createQuery("SELECT u FROM User u WHERE u.name = :name", User.class);
+        query.setParameter("name", name);
+        return query.getResultList();
+    }
+
+    public Optional<User> findByEmail(String email) {
+        TypedQuery<User> query = getEntityManager()
+            .createQuery("SELECT u FROM User u WHERE u.email = :email", User.class);
+        query.setParameter("email", email);
+        List<User> results = query.getResultList();
+        return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
+    }
+}
+
+// 3. Usage example
+class Main {
+    public static void main(String[] args) {
+        // Create EntityManagerFactory and EntityManager
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("my-persistence-unit");
+        EntityManager em = emf.createEntityManager();
+
+        // Create repository instance
+        UserRepository userRepo = new UserRepository(em);
+
+        // CREATE - Use executeInTransaction for operations
+        userRepo.executeInTransaction(() -> {
+            User user = new User("John Doe", "john@example.com");
+            userRepo.save(user);
+            System.out.println("User saved: " + user.getId());
+        });
+
+        // READ
+        Optional<User> user = userRepo.findById(1L);
+        user.ifPresent(u -> System.out.println("Found: " + u.getName()));
+
+        List<User> allUsers = userRepo.findAll();
+        System.out.println("Total users: " + allUsers.size());
+
+        // Custom query
+        List<User> johns = userRepo.findByName("John Doe");
+
+        // UPDATE
+        userRepo.executeInTransaction(() -> {
+            user.ifPresent(u -> {
+                u.setEmail("newemail@example.com");
+                userRepo.update(u);
+            });
+        });
+
+        // DELETE
+        userRepo.executeInTransaction(() -> {
+            userRepo.deleteById(1L);
+        });
+
+        // Count
+        long count = userRepo.count();
+        System.out.println("User count: " + count);
+
+        // Cleanup
+        em.close();
+        emf.close();
+    }
+}

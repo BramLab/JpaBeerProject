@@ -3,40 +3,77 @@ package service;
 import config.JpaConfig;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.EntityTransaction;
+import model.Beer;
 import model.Brewer;
 import repository.BrewerRepository;
+import repository.GenericRepository;
+import repository.GenericRepositoryImpl;
 
 import java.util.List;
 import java.util.Optional;
 
 public class BrewerService {
-    private BrewerRepository brewerRepository = new BrewerRepository();
+    private GenericRepository<Brewer, Long> brewerRepository = new GenericRepositoryImpl<>(Brewer.class);
 
-    public void create(Brewer entity) {
-        brewerRepository.create(entity);
-        //brewerRepository.createGeneric((Brewer)entity);
+    public void create(Brewer brewer) {
+        EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
+        try{
+            em.getTransaction().begin();
+            brewerRepository.save(em, brewer);
+            em.getTransaction().commit();
+        } finally {
+            em.close();
+        }
     }
 
     public Optional<Brewer> findById(long id){
-        Optional<Brewer> optionalEntity = Optional.empty();
+        EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
+        Brewer brewer;
         try{
-            optionalEntity = brewerRepository.findById(id);
+            brewer = brewerRepository.findById(em, id);
+            //int fetchAllHack = brewer.getBeers().size();
+            int fetchAllHack = brewer != null ? brewer.getBeers().size() : 0;
         } catch(EntityNotFoundException ignored){
+            return Optional.empty();
         } catch (Exception e) {
             throw new RuntimeException(e);
+        } finally {
+            em.close();
         }
-        return optionalEntity;
+        return Optional.ofNullable(brewer);
     }
 
     public List<Brewer> findAll(){
-        return brewerRepository.findAll();
+        EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
+        return brewerRepository.findAll(em);
     }
 
     public void update(Brewer brewer){
-        brewerRepository.update(brewer);
+        EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
+        try{
+            em.getTransaction().begin();
+            brewerRepository.update(em, brewer);
+            em.getTransaction().commit();
+        } finally {
+            em.close();
+        }
     }
 
     public void deleteById(long id){
-        brewerRepository.deleteById(id);
+        EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
+        try{
+            Brewer brewer = brewerRepository.findById(em, id);
+            if  (brewer != null) {
+                EntityTransaction transaction = em.getTransaction();
+                transaction.begin();
+                brewerRepository.deleteById(em, id);
+                transaction.commit();
+            }else {
+                throw new EntityNotFoundException("Brewer with id " + id + " not found");
+            }
+        }finally {
+            em.close();
+        }
     }
 }

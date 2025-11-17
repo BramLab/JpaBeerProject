@@ -1,41 +1,60 @@
 package service;
 
+import config.JpaConfig;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
+import model.Brewer;
 import model.Category;
 import repository.CategoryRepository;
+import repository.GenericRepository;
+import repository.GenericRepositoryImpl;
 
 import java.util.List;
 import java.util.Optional;
 
 public class CategoryService {
 
-    private CategoryRepository categoryRepository = new CategoryRepository();
+    GenericRepository<Category, Long> categoryRepository = new GenericRepositoryImpl<>(Category.class);
 
     public void create(Category entity) {
-        categoryRepository.create(entity);
+        EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
+        try{
+            em = JpaConfig.getEntityManagerFactory().createEntityManager();
+            em.getTransaction().begin();
+            categoryRepository.save(em, entity);
+            em.getTransaction().commit();
+        } finally {
+            em.close();
+        }
+
     }
 
     public Optional<Category> findById(long id){
-        Optional<Category> optionalEntity = Optional.empty();
+        EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
+        Category entity;
         try{
-            optionalEntity = categoryRepository.findById(id);
+            entity = categoryRepository.findById(em, id);
         } catch(EntityNotFoundException ignored){
-        } catch (Exception e) {
+            return Optional.empty();
+        } catch(Exception e) {
             throw new RuntimeException(e);
         }
-        return optionalEntity;
+        return Optional.ofNullable(entity);
     }
 
     public List<Category> findAll(){
-        return categoryRepository.findAll();
+        EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
+        return categoryRepository.findAll(em);
     }
 
     public void update(Category category){
-        categoryRepository.update(category);
+        EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
+        categoryRepository.update(em, category);
     }
 
     public void deleteById(long id){
-        categoryRepository.deleteById(id);
+        EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
+        categoryRepository.deleteById(em, id);
     }
     
 }

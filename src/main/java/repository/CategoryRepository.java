@@ -20,43 +20,43 @@ public class CategoryRepository {
 
     //o findCategoryByName(String name)
 
-    public void create(Category category) {
-        EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
-        try{
-            EntityTransaction transaction = em.getTransaction();
-            transaction.begin();
-            em.persist(category);
-            transaction.commit();
-        }finally{
-            em.close();
-        }
-    }
+//    public void create(Category category) {
+//        EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
+//        try{
+//            EntityTransaction transaction = em.getTransaction();
+//            transaction.begin();
+//            em.persist(category);
+//            transaction.commit();
+//        }finally{
+//            em.close();
+//        }
+//    }
 
-    public Optional<Category> findById(long id){
-        EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
-        Category category = null;
-        try{
-            category = em.find(Category.class, id);
-            if (category != null) {
-                for(Beer beer : category.getBeers()){
-                    long fetchAllHack = beer.getId();
-                }
-            }
-        } finally {
-            em.close();
-        }
-        return Optional.ofNullable(category);
-    }
+//    public Optional<Category> findById(long id){
+//        EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
+//        Category category = null;
+//        try{
+//            category = em.find(Category.class, id);
+//            if (category != null) {
+//                for(Beer beer : category.getBeers()){
+//                    long fetchAllHack = beer.getId();
+//                }
+//            }
+//        } finally {
+//            em.close();
+//        }
+//        return Optional.ofNullable(category);
+//    }
 
-    public List<Category> findAll(){
-        EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
-        List<Category> categories = em.createQuery("select c from Category c ").getResultList();
-        for(Category category : categories){
-            long fetchAllHack = category.getBeers().size();
-        }
-        em.close();
-        return categories;
-    }
+//    public List<Category> findAll(){
+//        EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
+//        List<Category> categories = em.createQuery("select c from Category c ").getResultList();
+//        for(Category category : categories){
+//            long fetchAllHack = category.getBeers().size();
+//        }
+//        em.close();
+//        return categories;
+//    }
 
     public void update(Category category){
         EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();

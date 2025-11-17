@@ -7,16 +7,17 @@
 
     <Appenders>
         <Console name="CONSOLE">
-            <JsonTemplateLayout/>
+            <!--<JsonTemplateLayout/>          gives error, why? -->
         </Console>
     </Appenders>
 
     <Loggers>
 <!--        ALL < DEBUG < INFO < WARN < ERROR < FATAL < OFF -->
-        <Logger name="com.mycompany" level="INFO"/>
-        <Root level="DEBUG">
+        <Logger name="main" level="DEBUG"/>
+        <Root level="ERROR">
             <AppenderRef ref="CONSOLE"/>
         </Root>
     </Loggers>
+
 
 </Configuration>

@@ -9,7 +9,6 @@ import org.apache.logging.log4j.Logger;
 import service.BeerService;
 import service.BrewerService;
 import service.CategoryService;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -27,7 +26,7 @@ public class MainApp {
 
     public static void main(String[] args) {
 
-        LOGGER.debug("Logger test `{}`", "iets");
+        LOGGER.error("Logger test `{}`", "iets");
 
         MainApp mainApp = new MainApp();
 
@@ -43,6 +42,10 @@ public class MainApp {
         JpaConfig.shutdown();
     }
 
+
+
+
+
     void manageBreweries(){
         Menu menu = new Menu("\nBrouwerijen\n", "Keuze: ", "0");
         menu.addMenuOption("1", "Toevoegen", () -> addBrewery() );
@@ -55,13 +58,19 @@ public class MainApp {
     }
 
     void addBrewery(){
-
         brewerService.create(new Brewer(scanString("Naam: "), scanString("Locatie: ")));
     }
 
-    void findBrewery(){
+    void findBrewery() {
         Optional<Brewer> brewer = brewerService.findById(scanLong("Id: "));
-        System.out.println(brewer.isPresent() ? brewer.get() : "Niet gevonden.");
+        if (brewer.isPresent()) {
+            System.out.println(brewer.get());
+            for (Beer beer : brewer.get().getBeers()) {
+                System.out.println(beer);
+            }
+        }else {
+            System.out.println("Niet gevonden.");
+        }
     }
 
     void findAllBreweries(){
@@ -127,12 +136,20 @@ public class MainApp {
     }
 
     void addCategory(){
+        categoryService.create(new Category(scanString("Naam: "), scanString("Locatie: ")));
     }
 
     void findCategory(){
+        Optional<Category> category = categoryService.findById(scanLong("Id: "));
+        System.out.println(category.isPresent() ? category.get() : "Niet gevonden.");
     }
 
-    void findAllCategories(){}
+    void findAllCategories(){
+        List<Category> categories = categoryService.findAll();
+        for(Category category : categories){
+            System.out.println(category.toString());
+        }
+    }
 
     void updateCategory(){}
 

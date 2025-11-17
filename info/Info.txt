@@ -1,0 +1,19 @@
+
+
+
+ Optionele uitbreidingen
+• H2 in-memory database voor testen
+
+• Abstracte BaseRepository<T> bouwen
+
+
+• Lazy-loading elegant oplossen
+
+• @NamedQuery gebruiken
+https://stackoverflow.com/questions/33236664/difference-between-query-native-query-named-query-and-typed-query
+
+• Command pattern toepassen in MainApp
+
+• Logging (Log4j/SLF4J) toevoegen
+
+• JSON import/export voor bieren
