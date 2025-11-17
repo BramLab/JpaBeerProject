@@ -1,0 +1,128 @@
+Yes! You can create generic CRUD repositories with just JPA/Hibernate (no Spring). Here's how:
+
+## Generic Repository Interface
+
+```java
+public interface GenericRepository<T, ID> {
+    T save(T entity);
+    T update(T entity);
+    void delete(T entity);
+    void deleteById(ID id);
+    T findById(ID id);
+    List<T> findAll();
+    long count();
+}
+```
+
+## Generic Repository Implementation
+
+```java
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.CriteriaQuery;
+import java.util.List;
+
+public class GenericRepositoryImpl<T, ID> implements GenericRepository<T, ID> {
+
+    private final EntityManager entityManager;
+    private final Class<T> entityClass;
+
+    public GenericRepositoryImpl(EntityManager entityManager, Class<T> entityClass) {
+        this.entityManager = entityManager;
+        this.entityClass = entityClass;
+    }
+
+    @Override
+    public T save(T entity) {
+        entityManager.persist(entity);
+        return entity;
+    }
+
+    @Override
+    public T update(T entity) {
+        return entityManager.merge(entity);
+    }
+
+    @Override
+    public void delete(T entity) {
+        entityManager.remove(entityManager.contains(entity) ? entity : entityManager.merge(entity));
+    }
+
+    @Override
+    public void deleteById(ID id) {
+        T entity = findById(id);
+        if (entity != null) {
+            delete(entity);
+        }
+    }
+
+    @Override
+    public T findById(ID id) {
+        return entityManager.find(entityClass, id);
+    }
+
+    @Override
+    public List<T> findAll() {
+        CriteriaQuery<T> criteriaQuery = entityManager.getCriteriaBuilder().createQuery(entityClass);
+        criteriaQuery.select(criteriaQuery.from(entityClass));
+        return entityManager.createQuery(criteriaQuery).getResultList();
+    }
+
+    @Override
+    public long count() {
+        CriteriaQuery<Long> criteriaQuery = entityManager.getCriteriaBuilder().createQuery(Long.class);
+        criteriaQuery.select(entityManager.getCriteriaBuilder().count(criteriaQuery.from(entityClass)));
+        return entityManager.createQuery(criteriaQuery).getSingleResult();
+    }
+}
+```
+
+## Usage Example
+
+```java
+// Your entity
+@Entity
+public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String name;
+    // getters/setters
+}
+
+// Using the generic repository
+EntityManager em = // ... get EntityManager from EntityManagerFactory
+GenericRepository<User, Long> userRepository = new GenericRepositoryImpl<>(em, User.class);
+
+// Perform CRUD operations
+User user = new User();
+user.setName("John");
+
+em.getTransaction().begin();
+userRepository.save(user);
+em.getTransaction().commit();
+
+User found = userRepository.findById(1L);
+List<User> allUsers = userRepository.findAll();
+```
+
+## Concrete Repository (Optional)
+
+You can extend the generic repository for specific entities:
+
+```java
+public class UserRepository extends GenericRepositoryImpl<User, Long> {
+
+    public UserRepository(EntityManager entityManager) {
+        super(entityManager, User.class);
+    }
+
+    // Add custom User-specific methods
+    public List<User> findByName(String name) {
+        return entityManager.createQuery("SELECT u FROM User u WHERE u.name = :name", User.class)
+            .setParameter("name", name)
+            .getResultList();
+    }
+}
+```
+
+This gives you all the benefits of generic CRUD operations without Spring dependencies!
