@@ -8,6 +8,26 @@
 
 
 • Lazy-loading elegant oplossen
+Optimised version by AI:
+https://claude.ai/chat/3e5aaab5-b436-4c5f-b2df-4a4b29da6a8f
+for (Field field : entity.getClass().getDeclaredFields()) {
+    if (Arrays.stream(field.getAnnotations())
+            .anyMatch(a -> a.annotationType().getSimpleName().contains("LAZY"))) {
+
+        String getterName = "get" +
+            field.getName().substring(0, 1).toUpperCase() +
+            field.getName().substring(1);
+
+        try {
+            Method getter = entity.getClass().getDeclaredMethod(getterName);
+            List<?> result = (List<?>) getter.invoke(entity);
+            result.size(); // Force lazy loading
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
+
 
 • @NamedQuery gebruiken
 https://stackoverflow.com/questions/33236664/difference-between-query-native-query-named-query-and-typed-query

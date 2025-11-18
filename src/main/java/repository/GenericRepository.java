@@ -16,6 +16,4 @@ public interface GenericRepository<T, ID> {
     T update(EntityManager entityManager, T entity);
     void delete(EntityManager entityManager, T entity);
     void deleteById(EntityManager entityManager, ID id);
-
-    long count(EntityManager entityManager);
 }

@@ -76,10 +76,4 @@ public class GenericRepositoryImpl<T, ID> implements GenericRepository<T, ID> {
         return entityManager.createQuery(criteriaQuery).getResultList();
     }
 
-    @Override
-    public long count(EntityManager entityManager) {
-        CriteriaQuery<Long> criteriaQuery = entityManager.getCriteriaBuilder().createQuery(Long.class);
-        criteriaQuery.select(entityManager.getCriteriaBuilder().count(criteriaQuery.from(entityClass)));
-        return entityManager.createQuery(criteriaQuery).getSingleResult();
-    }
 }
