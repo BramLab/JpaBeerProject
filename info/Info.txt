@@ -1,5 +1,13 @@
 
 
+Cleanup database inbetween tests:
+    https://vladmihalcea.com/clean-up-test-data-spring/
+
+tearDownAll() addShutdownHook
+    https://stackoverflow.com/questions/9903341/cleanup-after-all-junit-tests
+
+
+
 Cascade:
 
 Keep session in service: findById & update (object might change by someone else before own changes committed.
@@ -14,7 +22,6 @@ Show all Beers should show categories & brewers, so bypass lazy loading.
 • H2 in-memory database voor testen
 
 • Abstracte BaseRepository<T> bouwen
-
 
 • Lazy-loading elegant oplossen
 Optimised version by AI:

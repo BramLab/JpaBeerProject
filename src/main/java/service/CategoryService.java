@@ -18,9 +18,7 @@ public class CategoryService {
     public void create(Category entity) {
         EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
         try{
-            em.getTransaction().begin();
             categoryRepository.create(em, entity);
-            em.getTransaction().commit();
         } finally {
             em.close();
         }

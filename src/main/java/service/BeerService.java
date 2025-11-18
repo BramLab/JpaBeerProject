@@ -20,9 +20,7 @@ public class BeerService {
     public void create(Beer entity) {
         EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
         try{
-            em.getTransaction().begin();
             beerRepository.create(em, entity);
-            em.getTransaction().commit();
         } finally {
             em.close();
         }
@@ -49,9 +47,7 @@ public class BeerService {
     public void update(Beer beer){
         EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
         try{
-            em.getTransaction().begin();
             beerRepository.update(em, beer);
-            em.getTransaction().commit();
         } finally {
             em.close();
         }

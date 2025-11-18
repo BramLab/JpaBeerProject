@@ -18,9 +18,7 @@ public class BrewerService {
     public void create(Brewer brewer) {
         EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
         try{
-            em.getTransaction().begin();
             brewerRepository.create(em, brewer);
-            em.getTransaction().commit();
         } finally {
             em.close();
         }

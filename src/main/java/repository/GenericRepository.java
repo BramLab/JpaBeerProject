@@ -14,6 +14,6 @@ public interface GenericRepository<T, ID> {
     T findById(EntityManager entityManager, ID id);
     List<T> findAll(EntityManager entityManager);
     T update(EntityManager entityManager, T entity);
-    void delete(EntityManager entityManager, T entity);
+    //void delete(EntityManager entityManager, T entity);
     void deleteById(EntityManager entityManager, ID id);
 }

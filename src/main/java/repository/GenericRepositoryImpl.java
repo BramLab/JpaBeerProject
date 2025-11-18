@@ -22,7 +22,10 @@ public class GenericRepositoryImpl<T, ID> implements GenericRepository<T, ID> {
 
     @Override
     public T create(EntityManager entityManager, T entity) {
+        // Create model happens independently in this app, so transaction can happen here in repo.
+        entityManager.getTransaction().begin();
         entityManager.persist(entity);
+        entityManager.getTransaction().commit();
         return entity;
     }
 
@@ -66,16 +69,17 @@ public class GenericRepositoryImpl<T, ID> implements GenericRepository<T, ID> {
         return entityManager.merge(entity);
     }
 
-    @Override
-    public void delete(EntityManager entityManager, T entity) {
-        entityManager.remove(entityManager.contains(entity) ? entity : entityManager.merge(entity));
-    }
+//    @Override
+//    public void delete(EntityManager entityManager, T entity) {
+//        entityManager.remove(entityManager.contains(entity) ? entity : entityManager.merge(entity));
+//    }
 
     @Override
     public void deleteById(EntityManager entityManager, ID id) {
         T entity = findById(entityManager, id);
         if (entity != null) {
-            delete(entityManager, entity);
+            //delete(entityManager, entity);
+            entityManager.remove(entity);
         }
     }
 
