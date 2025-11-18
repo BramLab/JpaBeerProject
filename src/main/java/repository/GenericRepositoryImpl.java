@@ -1,6 +1,8 @@
 package repository;
 
+import app.FeedbackToUserException;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.criteria.CriteriaQuery;
 import org.junit.platform.commons.util.ReflectionUtils;
 
@@ -25,6 +27,41 @@ public class GenericRepositoryImpl<T, ID> implements GenericRepository<T, ID> {
     }
 
     @Override
+    public T findById(EntityManager entityManager, ID id) {
+        T entity = entityManager.find(entityClass, id);
+
+        // https://stackoverflow.com/questions/51837798/get-associated-getter-setter-of-field-member-variable
+        // Claude.ai can simplify this (see info.txt), but this is how i wrote it.
+        if(entity != null){
+            for  (Field field : entity.getClass().getDeclaredFields()) {
+                if (Arrays.toString(field.getAnnotations()).contains("LAZY")){
+                    String probableGetterName = "get" + field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1);
+
+                    for (Method method : entity.getClass().getDeclaredMethods()) {
+                        if ( (method.getName()).equals(probableGetterName)) {
+                            try {
+                                List result = (List<Object>) method.invoke(entity);
+                                int lazyLoadingHack = result.size();
+                            } catch (InvocationTargetException | IllegalAccessException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
+        return entity;
+    }
+
+    @Override
+    public List<T> findAll(EntityManager entityManager) {
+        CriteriaQuery<T> criteriaQuery = entityManager.getCriteriaBuilder().createQuery(entityClass);
+        criteriaQuery.select(criteriaQuery.from(entityClass));
+        return entityManager.createQuery(criteriaQuery).getResultList();
+    }
+
+    @Override
     public T update(EntityManager entityManager, T entity) {
         return entityManager.merge(entity);
     }
@@ -40,40 +77,6 @@ public class GenericRepositoryImpl<T, ID> implements GenericRepository<T, ID> {
         if (entity != null) {
             delete(entityManager, entity);
         }
-    }
-
-    @Override
-    public T findById(EntityManager entityManager, ID id) {
-        T entity = entityManager.find(entityClass, id);
-        // https://stackoverflow.com/questions/51837798/get-associated-getter-setter-of-field-member-variable
-        // Claude.ai can simplify this, but this is how i wrote it.
-        for  (Field field : entity.getClass().getDeclaredFields()) {
-            if (Arrays.toString(field.getAnnotations()).contains("LAZY")){
-                String probableGetterName = "get" + field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1);
-
-                for (Method method : entity.getClass().getDeclaredMethods()) {
-                    if ( (method.getName()).equals(probableGetterName)) {
-                        try {
-                            List result = (List<Object>) method.invoke(entity);
-                            int lazyLoadingHack = result.size();
-                        } catch (InvocationTargetException e) {
-                            throw new RuntimeException(e);
-                        } catch (IllegalAccessException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                }
-
-            }
-        }
-        return entity;
-    }
-
-    @Override
-    public List<T> findAll(EntityManager entityManager) {
-        CriteriaQuery<T> criteriaQuery = entityManager.getCriteriaBuilder().createQuery(entityClass);
-        criteriaQuery.select(criteriaQuery.from(entityClass));
-        return entityManager.createQuery(criteriaQuery).getResultList();
     }
 
 }

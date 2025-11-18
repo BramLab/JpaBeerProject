@@ -1,6 +1,7 @@
 package app;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static app.Helper.scanString;
@@ -34,10 +35,14 @@ public class Menu {
 
             for(MenuOption menuOption : menuOptions){
                 if (userChoice.equals(menuOption.getMenuString())){
-                    try{
+                    try {
                         menuOption.execute();
-                    }catch(Exception ex){
-                        System.out.println("Probleem: " + ex.getMessage());
+                    }catch (FeedbackToUserException f2ue){
+                        System.out.println("Feedback: " + f2ue.getMessage());
+                    } catch(Exception ex){
+                        ex.printStackTrace();
+                        System.out.println("Algemeen probleem: " + ex.toString() + Arrays.toString(ex.getStackTrace()));
+
                     }
 
                 }

@@ -58,33 +58,33 @@ public class CategoryRepository {
 //        return categories;
 //    }
 
-    public void update(Category category){
-        EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
-        try {
-            EntityTransaction transaction = em.getTransaction();
-            transaction.begin();
-            em.merge(category);
-            transaction.commit();
-        }finally {
-            em.close();
-        }
-    }
-
-    public void deleteById(long id){
-        EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
-        try{
-            Category category = em.find(Category.class, id);
-            if  (category != null) {
-                EntityTransaction transaction = em.getTransaction();
-                transaction.begin();
-                em.remove(category);
-                transaction.commit();
-            }else {
-                throw new EntityNotFoundException("Category with id " + id + " not found");
-            }
-        }finally {
-            em.close();
-        }
-    }
+//    public void update(Category category){
+//        EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
+//        try {
+//            EntityTransaction transaction = em.getTransaction();
+//            transaction.begin();
+//            em.merge(category);
+//            transaction.commit();
+//        }finally {
+//            em.close();
+//        }
+//    }
+//
+//    public void deleteById(long id){
+//        EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
+//        try{
+//            Category category = em.find(Category.class, id);
+//            if  (category != null) {
+//                EntityTransaction transaction = em.getTransaction();
+//                transaction.begin();
+//                em.remove(category);
+//                transaction.commit();
+//            }else {
+//                throw new EntityNotFoundException("Category with id " + id + " not found");
+//            }
+//        }finally {
+//            em.close();
+//        }
+//    }
     
 }

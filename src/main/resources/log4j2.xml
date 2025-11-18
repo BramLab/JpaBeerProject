@@ -14,7 +14,7 @@
     <Loggers>
 <!--        ALL < DEBUG < INFO < WARN < ERROR < FATAL < OFF -->
         <Logger name="main" level="DEBUG"/>
-        <Root level="ERROR">
+        <Root level="WARN">
             <AppenderRef ref="CONSOLE"/>
         </Root>
     </Loggers>

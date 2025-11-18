@@ -34,7 +34,7 @@ public class Helper {
             try {
                 return Float.parseFloat(scanString(msg));
             } catch (NumberFormatException e) {
-                System.out.println("Er wordt een getal verwacht.");
+                System.out.println("Er wordt een (decimaal) getal verwacht, bv 1 of 1.5 (punt, geen komma).");
             }
         }
     }

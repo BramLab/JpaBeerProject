@@ -1,5 +1,6 @@
 package service;
 
+import app.FeedbackToUserException;
 import config.JpaConfig;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
@@ -67,8 +68,10 @@ public class BrewerService {
                 brewerRepository.deleteById(em, id);
                 transaction.commit();
             }else {
-                throw new EntityNotFoundException("Brewer with id " + id + " not found");
+                throw new FeedbackToUserException("Brouwer met id " + id + " niet gevonden.");
             }
+        }catch(jakarta.persistence.RollbackException rbe){
+            throw new FeedbackToUserException("Dit element wordt nog voor andere elementen gebruikt.");
         }finally {
             em.close();
         }

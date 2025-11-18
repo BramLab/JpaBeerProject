@@ -1,5 +1,14 @@
 
 
+Cascade:
+
+Keep session in service: findById & update (object might change by someone else before own changes committed.
+Maybe get separately after findById?
+
+Show all Beers should show categories & brewers, so bypass lazy loading.
+-> Eager (always)? is only ManyToOne => not breaking but less beautiful: when showing category.findById also the beers are show, and there the categories are redundantly shown again.
+
+
 
  Optionele uitbreidingen
 • H2 in-memory database voor testen

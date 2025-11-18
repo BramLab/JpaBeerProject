@@ -65,7 +65,7 @@ public class MainApp {
                 System.out.println("  " + beer);
             }
         }else {
-            System.out.println("Niet gevonden.");
+            throw new FeedbackToUserException("Brouwer niet gevonden.");
         }
     }
 
@@ -84,18 +84,20 @@ public class MainApp {
             brewer.get().setLocation(scanString("Locatie: "));
             brewerService.update(brewer.get());
         } else {
-            System.out.println("Niet gevonden.");
+            throw new FeedbackToUserException("Brouwer niet gevonden.");
         }
     }
 
     void deleteBrewery(){
-        Optional<Brewer> brewer = brewerService.findById(scanLong("Id: "));
-        if (brewer.isPresent()){
-            System.out.println(brewer);
-            brewerService.deleteById(brewer.get().getId());
-        } else {
-            System.out.println("Niet gevonden.");
-        }
+        brewerService.deleteById(scanLong("Id: "));
+
+//        Optional<Brewer> brewer = brewerService.findById(scanLong("Id: "));
+//        if (brewer.isPresent()){
+//            System.out.println(brewer);
+//            brewerService.deleteById(brewer.get().getId());
+//        } else {
+//            System.out.println("Niet gevonden.");
+//        }
     }
 
 
@@ -116,16 +118,42 @@ public class MainApp {
                 scanFloat("prijs: "),
                 brewerService.findById(scanInt("id brouwerij: ")).get(),
                 categoryService.findById(scanInt("id categorie: ")).get()
-
         ));
-        //String name, float alcoholPercentage, float price, Brewer brewer, Category category
     }
 
-    void findBeer(){}
+    void findBeer(){
+        Optional<Beer> beer = beerService.findById(scanLong("Id: "));
+        if (beer.isPresent()) {
+            System.out.println(beer.get());
+            System.out.println(beer.get().getCategory());
+            System.out.println(beer.get().getBrewer());
+        }else {
+            System.out.println("Niet gevonden.");
+        }
+    }
 
-    void findAllBeers(){}
+    void findAllBeers(){
+        List<Beer> beers = beerService.findAll();
+        for(Beer beer : beers){
+            System.out.println(beer.toString());
+        }
+    }
 
-    void updateBeer(){}
+    void updateBeer(){
+        Optional<Beer> optionalBeer = beerService.findById(scanLong("Id: "));
+        if (optionalBeer.isPresent()){
+            Beer beer = optionalBeer.get();
+            System.out.println(beer);
+            beer.setName(scanString("Naam: "));
+            beer.setAlcoholPercentage(scanFloat("alcoholPercentage: "));
+            beer.setPrice(scanFloat("prijs: "));
+            beer.setCategory(categoryService.findById(scanInt("id categorie: ")).get());
+            beer.setBrewer(brewerService.findById(scanInt("id brouwerij: ")).get());
+            beerService.update(optionalBeer.get());
+        } else {
+            System.out.println("Niet gevonden.");
+        }
+    }
 
     void deleteBeer(){
         Optional<Beer> beer = beerService.findById(scanLong("Id: "));
