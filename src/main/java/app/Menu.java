@@ -32,20 +32,24 @@ public class Menu {
             System.out.print(menuFooter == null ? "" : menuFooter);
 
             userChoice = scanString("");
+            boolean IsUserChoiceValidated = false;
 
             for(MenuOption menuOption : menuOptions){
                 if (userChoice.equals(menuOption.getMenuString())){
                     try {
+                        IsUserChoiceValidated = true;
                         menuOption.execute();
-                    }catch (FeedbackToUserException f2ue){
-                        System.out.println("Feedback: " + f2ue.getMessage());
+                        System.out.println("Uitgevoerd.");
+                    }catch (FeedbackToUserException ex){
+                        System.out.println("Feedback: " + ex.getMessage());
                     } catch(Exception ex){
                         ex.printStackTrace();
                         System.out.println("Algemeen probleem: " + ex.toString() + Arrays.toString(ex.getStackTrace()));
-
                     }
-
                 }
+            }
+            if (!IsUserChoiceValidated){
+                System.out.println("Geen geldige menukeuze.");
             }
         } while (!userChoice.equals(exitString));
     }

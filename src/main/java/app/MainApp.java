@@ -20,7 +20,7 @@ public class MainApp {
     static BrewerService brewerService = new BrewerService();
     static CategoryService categoryService = new CategoryService();
     static BeerService beerService = new BeerService();
-    //https://logging.apache.org/log4j/2.x/manual/getting-started.html
+
     private static final Logger LOGGER = LogManager.getLogger();
 
     public static void main(String[] args) {
@@ -77,12 +77,13 @@ public class MainApp {
     }
 
     void updateBrewery(){
-        Optional<Brewer> brewer = brewerService.findById(scanLong("Id: "));
-        if (brewer.isPresent()){
+        Optional<Brewer> optionalBrewer = brewerService.findById(scanLong("Id: "));
+        if (optionalBrewer.isPresent()){
+            Brewer brewer = optionalBrewer.get();
             System.out.println(brewer);
-            brewer.get().setName(scanString("Naam: "));
-            brewer.get().setLocation(scanString("Locatie: "));
-            brewerService.update(brewer.get());
+            brewer.setName(scanString("Naam: "));
+            brewer.setLocation(scanString("Locatie: "));
+            brewerService.update(brewer);
         } else {
             throw new FeedbackToUserException("Brouwer niet gevonden.");
         }
@@ -90,14 +91,6 @@ public class MainApp {
 
     void deleteBrewery(){
         brewerService.deleteById(scanLong("Id: "));
-
-//        Optional<Brewer> brewer = brewerService.findById(scanLong("Id: "));
-//        if (brewer.isPresent()){
-//            System.out.println(brewer);
-//            brewerService.deleteById(brewer.get().getId());
-//        } else {
-//            System.out.println("Niet gevonden.");
-//        }
     }
 
 

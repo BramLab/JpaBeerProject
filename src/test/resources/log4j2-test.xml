@@ -5,20 +5,17 @@
                        https://logging.apache.org/xml/ns
                        https://logging.apache.org/xml/ns/log4j-config-2.xsd">
 
-    <!--gives error, why? -->
     <Appenders>
         <Console name="CONSOLE">
-<!--            <JsonTemplateLayout/>          -->
+            <PatternLayout pattern="%d [%t] %5p %c{1.} - %m%n"/>
         </Console>
     </Appenders>
 
     <Loggers>
-<!--        ALL < DEBUG < INFO < WARN < ERROR < FATAL < OFF -->
-        <Logger name="main" level="ERROR"/>
-        <Root level="ERROR">
+        <Logger name="com.mycompany" level="DEBUG"/>
+        <Root level="WARN">
             <AppenderRef ref="CONSOLE"/>
         </Root>
     </Loggers>
-
 
 </Configuration>

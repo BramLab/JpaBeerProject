@@ -2,9 +2,7 @@ package service;
 
 import app.FeedbackToUserException;
 import config.JpaConfig;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.*;
 import model.Brewer;
 import repository.GenericRepository;
 import repository.GenericRepositoryImpl;
@@ -48,29 +46,42 @@ public class BrewerService {
     public void update(Brewer brewer){
         EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
         try{
-            em.getTransaction().begin();
+            EntityTransaction transaction = em.getTransaction();
+            transaction.begin();
             brewerRepository.update(em, brewer);
-            em.getTransaction().commit();
+            transaction.commit();
         } finally {
             em.close();
         }
+//        em.getTransaction().begin();
+//        T entity = findById(em, id);
+//        if (entity != null) {
+//            entityManager.remove(entity);
+//            entityManager.getTransaction().commit();
+//        }else {
+//            entityManager.getTransaction().rollback();
+//            throw new NoResultException();
+//        }
+//        try{
+//            brewerRepository.deleteById(em, id);
+//        } catch (RollbackException rbe) {
+//            throw new FeedbackToUserException("Dit element wordt nog voor andere elementen gebruikt." + " Brouwer id " + id);
+//        }catch(NoResultException nre){
+//            throw new FeedbackToUserException("Element niet gevonden." + " Brouwer id " + id);
+//        } finally {
+//            em.close();
+//        }
     }
 
     public void deleteById(long id){
         EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
         try{
-            Brewer brewer = brewerRepository.findById(em, id);
-            if  (brewer != null) {
-                EntityTransaction transaction = em.getTransaction();
-                transaction.begin();
-                brewerRepository.deleteById(em, id);
-                transaction.commit();
-            }else {
-                throw new FeedbackToUserException("Brouwer met id " + id + " niet gevonden.");
-            }
-        }catch(jakarta.persistence.RollbackException rbe){
-            throw new FeedbackToUserException("Dit element wordt nog voor andere elementen gebruikt.");
-        }finally {
+            brewerRepository.deleteById(em, id);
+        } catch (RollbackException rbe) {
+            throw new FeedbackToUserException("Dit element wordt nog voor andere elementen gebruikt." + " Brouwer id " + id);
+        }catch(NoResultException nre){
+            throw new FeedbackToUserException("Element niet gevonden." + " Brouwer id " + id);
+        } finally {
             em.close();
         }
     }

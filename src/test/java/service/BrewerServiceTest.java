@@ -1,6 +1,7 @@
 package service;
 
 import config.JpaConfig;
+import jakarta.persistence.RollbackException;
 import model.Beer;
 import model.Brewer;
 import model.Category;
@@ -8,6 +9,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.junit.jupiter.api.*;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class BrewerServiceTest {
 
@@ -60,18 +63,90 @@ class BrewerServiceTest {
 
     @Test
     void findById() {
+        assertTrue(false);
     }
 
     @Test
     void findAll() {
+        assertTrue(false);
     }
 
     @Test
     void update() {
+        Brewer brewer = brewerService.findById(3).get();
+        brewer.setName("NAME");
+        brewer.setLocation("LOCATION");
+
+        brewerService.update(brewer);
+
+        Brewer updatedBrewer = brewerService.findById(3).get();
+        Assertions.assertEquals("NAME", updatedBrewer.getName());
+        Assertions.assertEquals("LOCATION", updatedBrewer.getLocation());
     }
 
     @Test
-    void deleteById() {
+    void update_element_not_found() {
+        assertTrue(false);
+    }
+
+    @Test
+    void update_element_changed_inbetween_expectException() {
+        insertTestData();
+        Brewer brewerV1 = brewerService.findById(1).get();
+        brewerV1.setName("NAME CHANGED v1");
+
+                // but meanwhile somebody else changes it too ...
+                Brewer brewerV2 = brewerService.findById(1).get();
+                brewerV2.setName("NAME CHANGED v2");
+                brewerService.update(brewerV2);
+
+        brewerService.update(brewerV1);
+
+        Brewer updatedBrewer = brewerService.findById(1).get();
+        Assertions.assertEquals("EXPECT EXCEPTION", updatedBrewer.getName());
+    }
+
+    @Test
+    void deleteById_expectSuccess() {
+        // Arrange
+        insertTestData();
+        assertTrue(brewerService.findById(2).isPresent());
+
+        // Act
+        brewerService.deleteById(2);
+
+        // Assert
+        assertFalse(brewerService.findById(2).isPresent());
+    }
+
+    // DeleteById seems not very safe -> if someone else just updated element values, it will still be deleted.
+    // What if someone is in the process of updating?
+    // Is Delete by element safer? -> it holds its latest (~transaction/~session?) state.
+    // We could verify that the service first loads the latest version and then deletes that one?
+    @Test
+    void deleteById_entityIs_Being_ChangedInOtherTransaction_soInvalidTransaction(){
+        assertTrue(false);
+    }
+
+    @Test
+    void deleteById_entityNotFound(){
+        insertTestData();
+
+        Exception thrown = assertThrows(app.FeedbackToUserException.class,
+                () -> {  brewerService.deleteById(666);  }
+        );
+        assertEquals("Element niet gevonden. Brouwer id 666", thrown.getMessage());
+    }
+
+    @Test
+    void deleteById_entityInUseByOtherElement__FK() {
+        insertTestData();
+        assertTrue(brewerService.findById(1).isPresent());
+
+        Exception thrown = assertThrows(app.FeedbackToUserException.class,
+                () -> {  brewerService.deleteById(1);  }
+        );
+        assertEquals("Dit element wordt nog voor andere elementen gebruikt. Brouwer id 1", thrown.getMessage());
     }
 
     private static void insertTestData() {

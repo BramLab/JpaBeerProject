@@ -1,9 +1,8 @@
 package service;
 
+import app.FeedbackToUserException;
 import config.JpaConfig;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.*;
 import model.Category;
 import repository.GenericRepository;
 import repository.GenericRepositoryImpl;
@@ -56,16 +55,12 @@ public class CategoryService {
     public void deleteById(long id){
         EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
         try{
-            Category category = categoryRepository.findById(em, id);
-            if (category != null) {
-                EntityTransaction transaction = em.getTransaction();
-                transaction.begin();
-                categoryRepository.deleteById(em, id);
-                transaction.commit();
-            }else {
-                throw new EntityNotFoundException("Category with id " + id + " not found");
-            }
-        }finally {
+            categoryRepository.deleteById(em, id);
+        } catch (RollbackException rbe) {
+            throw new FeedbackToUserException("Dit element wordt nog voor andere elementen gebruikt." + " Brouwer id " + id);
+        }catch(NoResultException nre){
+            throw new FeedbackToUserException("Element niet gevonden." + " Brouwer id " + id);
+        } finally {
             em.close();
         }
     }

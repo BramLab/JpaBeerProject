@@ -2,7 +2,9 @@ package repository;
 
 import app.FeedbackToUserException;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.NoResultException;
+import jakarta.persistence.RollbackException;
 import jakarta.persistence.criteria.CriteriaQuery;
 import org.junit.platform.commons.util.ReflectionUtils;
 
@@ -69,17 +71,18 @@ public class GenericRepositoryImpl<T, ID> implements GenericRepository<T, ID> {
         return entityManager.merge(entity);
     }
 
-//    @Override
-//    public void delete(EntityManager entityManager, T entity) {
-//        entityManager.remove(entityManager.contains(entity) ? entity : entityManager.merge(entity));
-//    }
-
     @Override
-    public void deleteById(EntityManager entityManager, ID id) {
+    public void deleteById(EntityManager entityManager, ID id) throws RollbackException, NoResultException {
+        //EntityTransaction transaction = entityManager.getTransaction();
+        //transaction.begin();
+        entityManager.getTransaction().begin();
         T entity = findById(entityManager, id);
         if (entity != null) {
-            //delete(entityManager, entity);
             entityManager.remove(entity);
+            entityManager.getTransaction().commit();
+        }else {
+            entityManager.getTransaction().rollback();
+            throw new NoResultException();
         }
     }
 

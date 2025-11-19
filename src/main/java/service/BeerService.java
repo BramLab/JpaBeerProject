@@ -1,9 +1,8 @@
 package service;
 
+import app.FeedbackToUserException;
 import config.JpaConfig;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.*;
 import model.Beer;
 import model.Category;
 import repository.GenericRepository;
@@ -53,19 +52,15 @@ public class BeerService {
         }
     }
 
-    public void deleteById(long id){
+    public void deleteById (long id){
         EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
         try{
-            Beer beer = beerRepository.findById(em, id);
-            if (beer != null) {
-                EntityTransaction transaction = em.getTransaction();
-                transaction.begin();
-                beerRepository.deleteById(em, id);
-                transaction.commit();
-            }else {
-                throw new EntityNotFoundException("Beer with id " + id + " not found");
-            }
-        }finally {
+            beerRepository.deleteById(em, id);
+        } catch (RollbackException rbe) {
+            throw new FeedbackToUserException("Dit element wordt nog voor andere elementen gebruikt." + " Brouwer id " + id);
+        }catch(NoResultException nre){
+            throw new FeedbackToUserException("Element niet gevonden." + " Brouwer id " + id);
+        } finally {
             em.close();
         }
     }

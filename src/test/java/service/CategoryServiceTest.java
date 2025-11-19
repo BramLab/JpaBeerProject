@@ -62,18 +62,30 @@ class CategoryServiceTest {
 
     @Test
     void findById() {
+        assertTrue(false);
     }
 
     @Test
     void findAll() {
+        assertTrue(false);
     }
 
     @Test
     void update() {
+        assertTrue(false);
     }
 
     @Test
-    void deleteById() {
+    void deleteById_expectSuccess() {
+        // Arrange
+        insertTestData();
+        assertTrue(categoryService.findById(2).isPresent());
+
+        // Act
+        categoryService.deleteById(2);
+
+        // Assert
+        assertFalse(categoryService.findById(2).isPresent());
     }
 
     private static void insertTestData() {

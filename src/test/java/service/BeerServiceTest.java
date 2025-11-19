@@ -63,18 +63,30 @@ class BeerServiceTest {
 
     @Test
     void findById() {
+        assertTrue(false);
     }
 
     @Test
     void findAll() {
+        assertTrue(false);
     }
 
     @Test
     void update() {
+        assertTrue(false);
     }
 
     @Test
-    void deleteById() {
+    void deleteById_expectSuccess() {
+        // Arrange
+        insertTestData();
+        assertTrue(beerService.findById(2).isPresent());
+
+        // Act
+        beerService.deleteById(2);
+
+        // Assert
+        assertFalse(beerService.findById(2).isPresent());
     }
 
     private static void insertTestData() {
