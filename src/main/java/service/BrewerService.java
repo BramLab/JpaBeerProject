@@ -25,13 +25,13 @@ public class BrewerService {
     public Optional<Brewer> findById(long id){
         EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
         Brewer brewer;
-        try{
+        try {
             brewer = brewerRepository.findById(em, id);
-            //int fetchAllHack = brewer != null ? brewer.getBeers().size() : 0;
-        } catch(EntityNotFoundException ignored){
+            if (brewer != null) {
+                int fetchAllHack = brewer != null ? brewer.getBeers().size() : 0;
+            }
+        } catch(EntityNotFoundException e){
             return Optional.empty();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         } finally {
             em.close();
         }
@@ -48,29 +48,22 @@ public class BrewerService {
         try{
             EntityTransaction transaction = em.getTransaction();
             transaction.begin();
+            if (brewer.getId() == 0){
+                throw new FeedbackToUserException("Brouwer bestaat nog niet in database.");
+            }
+            Brewer brewerFromRepo = brewerRepository.findById(em, brewer.getId());
+            if(brewerFromRepo == null){
+                throw new FeedbackToUserException("Brouwer bestaat nog niet in database.");
+            }
+//            transaction.rollback();
+//            if (!em.contains(brewer)){
+//                throw new FeedbackToUserException("Brouwer mogelijk veranderd ondertussen. Ververs eerst.");
+//            }
             brewerRepository.update(em, brewer);
             transaction.commit();
         } finally {
             em.close();
         }
-//        em.getTransaction().begin();
-//        T entity = findById(em, id);
-//        if (entity != null) {
-//            entityManager.remove(entity);
-//            entityManager.getTransaction().commit();
-//        }else {
-//            entityManager.getTransaction().rollback();
-//            throw new NoResultException();
-//        }
-//        try{
-//            brewerRepository.deleteById(em, id);
-//        } catch (RollbackException rbe) {
-//            throw new FeedbackToUserException("Dit element wordt nog voor andere elementen gebruikt." + " Brouwer id " + id);
-//        }catch(NoResultException nre){
-//            throw new FeedbackToUserException("Element niet gevonden." + " Brouwer id " + id);
-//        } finally {
-//            em.close();
-//        }
     }
 
     public void deleteById(long id){
@@ -79,10 +72,20 @@ public class BrewerService {
             brewerRepository.deleteById(em, id);
         } catch (RollbackException rbe) {
             throw new FeedbackToUserException("Dit element wordt nog voor andere elementen gebruikt." + " Brouwer id " + id);
-        }catch(NoResultException nre){
+        }catch(NoResultException nre) {
             throw new FeedbackToUserException("Element niet gevonden." + " Brouwer id " + id);
+        }catch(Exception e) {
+            throw new RuntimeException(e);
         } finally {
             em.close();
         }
     }
+
+    public boolean isDetached(Brewer brewer) {
+        EntityManager em = JpaConfig.getEntityManager();
+        return brewer.getId() != 0  // must not be transient
+                && !em.contains(brewer)  // must not be managed now
+                && em.find(Brewer.class, brewer.getId()) != null;  // must not have been removed
+    }
+
 }

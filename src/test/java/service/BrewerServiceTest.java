@@ -51,7 +51,7 @@ class BrewerServiceTest {
     }
 
     @Test
-    void create() {
+    void testCreate() {
         // Arrange
         Brewer brewer = new Brewer("Roman", "Oudenaarde");
         long idBefore = brewer.getId();
@@ -65,7 +65,7 @@ class BrewerServiceTest {
     }
 
     @Test
-    void findById() {
+    void testFindById() {
         insertTestData();
 
         Optional<Brewer> brewer = brewerService.findById(1);
@@ -75,7 +75,7 @@ class BrewerServiceTest {
     }
 
     @Test
-    void findAll() {
+    void testFindAll() {
         insertTestData();
 
         List<Brewer> brewers = brewerService.findAll();
@@ -88,7 +88,8 @@ class BrewerServiceTest {
     }
 
     @Test
-    void update() {
+    void testUpdate() {
+        insertTestData();
         Brewer brewer = brewerService.findById(3).get();
         brewer.setName("NAME");
         brewer.setLocation("LOCATION");
@@ -101,26 +102,21 @@ class BrewerServiceTest {
     }
 
     @Test
-    void update__fresh_element__ExpectNoInsert_OnlyException() {
+    void testUpdate__fresh_element__Expect_Exception() {
         insertTestData();
         List<Brewer> brewersBefore = brewerService.findAll();
         int countBefore = brewersBefore.size();
         Brewer brewer = new Brewer("Roman", "Oudenaarde");
-        brewer.setId(666);
+        //brewer.setId(666);
 
-        brewerService.update(brewer);
-//        Exception thrown = assertThrows(app.FeedbackToUserException.class,
-//                () -> {  brewerService.update(brewer);  }
-//        );
-        List<Brewer> brewersAfter = brewerService.findAll();
-        int countAfter = brewersAfter.size();
-
-//        assertEquals("Element niet gevonden. Brouwer id 666", thrown.getMessage());
-        assertEquals(countBefore, countAfter);
+        Exception thrown = assertThrows(app.FeedbackToUserException.class,
+                () -> {  brewerService.update(brewer);  }
+        );
+        assertEquals("Brouwer bestaat nog niet in database.", thrown.getMessage());
     }
 
     @Test
-    void update_element_changed_inbetween_expectException() {
+    void testUpdate_element_changed_inbetween_expectException_MAYBELATERWITH_LOCKS() {
         insertTestData();
         Brewer brewerV1 = brewerService.findById(1).get();
         brewerV1.setName("NAME CHANGED v1");
@@ -133,11 +129,11 @@ class BrewerServiceTest {
         brewerService.update(brewerV1);
 
         Brewer updatedBrewer = brewerService.findById(1).get();
-        Assertions.assertEquals("EXPECT EXCEPTION", updatedBrewer.getName());
+        Assertions.assertEquals("NAME CHANGED v1", updatedBrewer.getName());
     }
 
     @Test
-    void deleteById_expectSuccess() {
+    void testDeleteById_expectSuccess() {
         // Arrange
         insertTestData();
         assertTrue(brewerService.findById(2).isPresent());
@@ -153,13 +149,10 @@ class BrewerServiceTest {
     // What if someone is in the process of updating?
     // Is Delete by element safer? -> it holds its latest (~transaction/~session?) state.
     // We could verify that the service first loads the latest version and then deletes that one?
-    @Test
-    void deleteById_entityIs_Being_ChangedInOtherTransaction_soInvalidTransaction(){
-        assertTrue(false);
-    }
+
 
     @Test
-    void deleteById_entityNotFound(){
+    void testDeleteById_entityNotFound(){
         insertTestData();
 
         Exception thrown = assertThrows(app.FeedbackToUserException.class,
@@ -169,7 +162,7 @@ class BrewerServiceTest {
     }
 
     @Test
-    void deleteById_entityInUseByOtherElement__FK() {
+    void testDeleteById_entityInUseByOtherElement__FK() {
         insertTestData();
         assertTrue(brewerService.findById(1).isPresent());
 

@@ -1,8 +1,10 @@
 package repository;
 
 import app.FeedbackToUserException;
+import config.JpaConfig;
 import jakarta.persistence.*;
 import jakarta.persistence.criteria.CriteriaQuery;
+import model.Brewer;
 import org.junit.platform.commons.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
@@ -36,10 +38,13 @@ public class GenericRepositoryImpl<T, ID> implements GenericRepository<T, ID> {
 //        return entity;
         String tableName = entityClass.getSimpleName();
         String queryString = "SELECT u FROM " + tableName + " u WHERE u.id=:id";
-        TypedQuery<T> typedQuery = getEntityManager().createQuery(queryString, entityClass);
-//        typedQuery.setParameter("type", entityClass);
+        TypedQuery<T> typedQuery = entityManager.createQuery(queryString, entityClass);
         typedQuery.setParameter("id", id);
-        return typedQuery.getSingleResult();
+        if  (!typedQuery.getResultList().isEmpty()) {
+            return entityManager.find(entityClass, id);
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -84,16 +89,33 @@ public class GenericRepositoryImpl<T, ID> implements GenericRepository<T, ID> {
 
     @Override
     public void deleteById(EntityManager entityManager, ID id) throws RollbackException, NoResultException {
-        EntityTransaction transaction = entityManager.getTransaction();
-        transaction.begin();
+        entityManager.getTransaction().begin();
         T entity = findById(entityManager, id);
         if (entity != null) {
+            //delete(entityManager, entity);
             entityManager.remove(entity);
-            transaction.commit();
+            entityManager.getTransaction().commit();
         }else {
-            transaction.rollback();
+            entityManager.getTransaction().rollback();
             throw new NoResultException();
         }
     }
+
+//    public boolean isDetached(EntityManager em, T entity) {
+//        return entity.getId() != 0  // must not be transient
+//                && !em.contains(entity)  // must not be managed now
+//                && em.find(entityClass, entity.getId()) != null;  // must not have been removed
+//
+//        try{
+//            Method getId = entity.getClass().getDeclaredMethod("getId");
+//            int entityId = (int) getId.invoke(entity);
+//        } catch(NoSuchMethodException e){
+//            //
+//        } catch (InvocationTargetException e) {
+//            throw new RuntimeException(e);
+//        } catch (IllegalAccessException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 
 }
