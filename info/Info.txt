@@ -49,10 +49,32 @@ for (Field field : entity.getClass().getDeclaredFields()) {
 }
 
 
-• @NamedQuery gebruiken
+• @NamedQuery gebruiken (basisopdracht: Gebruik TypedQuery)
 https://stackoverflow.com/questions/33236664/difference-between-query-native-query-named-query-and-typed-query
+? CriteriaQuery
+- Query refers to JPQL/HQL (Java Persistence Query Language & Hibernate Query Language) query with syntax similar to SQL
+generally used to execute DML (Data manipulation language) statements (=CRUD operations).
+
+In JPA, you can create a query using    entityManager.createQuery().
+In Hibernate, you use                   session.createQuery()"
+
+NativeQuery: refers to actual sql queries (referring to actual database objects).
+These queries are the sql statements which can be directly executed in database using a database client.
+- JPA :                                 entityManager.createNativeQuery()
+- Hibernate (Non-JPA implementation):   session.createSQLQuery()
+
+- NamedQuery: Similar to how the constant is defined. NamedQuery is the way you define your query by giving it a name.
+    You could define this in mapping file in hibernate or also using annotations at entity level.
+
+- TypedQuery: gives you an option to mention the type of entity when you create a query and therefore any operation
+    hereafter does not need an explicit cast to the intended type.
+    Whereas the normal Query API does not return the exact type of Object you expect and you need to cast.
+
 
 • Command pattern toepassen in MainApp
+This site seems to describe a version that i already had with Menu (& MenuOption inner class):
+    https://ajayiyengar.com/2017/04/12/command-pattern-using-java-8-lambdas/
+
 
 • Logging (Log4j/SLF4J) toevoegen
 https://logging.apache.org/log4j/2.x/manual/getting-started.html
@@ -61,4 +83,21 @@ In pom.xm:
     should code to. Strictly speaking Log4j core is only needed at runtime and not at compile time.
 Problem json: https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-layout-template-json
 
+
 • JSON import/export voor bieren
+
+
+
+----------- GenericRepositoryImpl
+//    @Override
+//    public void delete(EntityManager entityManager, T entity) {
+//        entityManager.remove(entityManager.contains(entity) ? entity : entityManager.merge(entity));
+//    }
+//
+//    @Override
+//    public void deleteById(EntityManager entityManager, ID id) {
+//        T entity = findById(entityManager, id);
+//        if (entity != null) {
+//            delete(entityManager, entity);
+//        }
+//    }

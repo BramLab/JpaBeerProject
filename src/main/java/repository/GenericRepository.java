@@ -12,6 +12,7 @@ public interface GenericRepository<T, ID> {
     //• delete(Long id)
     T create(EntityManager entityManager, T entity);
     T findById(EntityManager entityManager, ID id);
+    T findById_lazyLoadingHack(EntityManager entityManager, ID id);
     List<T> findAll(EntityManager entityManager);
     T update(EntityManager entityManager, T entity);
     //void delete(EntityManager entityManager, T entity);

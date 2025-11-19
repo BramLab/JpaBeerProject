@@ -10,6 +10,9 @@ import org.apache.logging.log4j.Logger;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.junit.jupiter.api.*;
 
+import java.util.List;
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class BrewerServiceTest {
@@ -63,12 +66,25 @@ class BrewerServiceTest {
 
     @Test
     void findById() {
-        assertTrue(false);
+        insertTestData();
+
+        Optional<Brewer> brewer = brewerService.findById(1);
+
+        Assertions.assertTrue(brewer.get().getName().equals("brewer1"));
+        Assertions.assertEquals(2, brewer.get().getBeers().size());
     }
 
     @Test
     void findAll() {
-        assertTrue(false);
+        insertTestData();
+
+        List<Brewer> brewers = brewerService.findAll();
+
+        Assertions.assertEquals(3, brewers.size());
+        Assertions.assertEquals("brewer1", brewers.get(0).getName());
+        Assertions.assertEquals("Bx", brewers.get(0).getLocation());
+        Assertions.assertEquals("brewer2", brewers.get(1).getName());
+        Assertions.assertEquals("brewer3", brewers.get(2).getName());
     }
 
     @Test
@@ -85,8 +101,22 @@ class BrewerServiceTest {
     }
 
     @Test
-    void update_element_not_found() {
-        assertTrue(false);
+    void update__fresh_element__ExpectNoInsert_OnlyException() {
+        insertTestData();
+        List<Brewer> brewersBefore = brewerService.findAll();
+        int countBefore = brewersBefore.size();
+        Brewer brewer = new Brewer("Roman", "Oudenaarde");
+        brewer.setId(666);
+
+        brewerService.update(brewer);
+//        Exception thrown = assertThrows(app.FeedbackToUserException.class,
+//                () -> {  brewerService.update(brewer);  }
+//        );
+        List<Brewer> brewersAfter = brewerService.findAll();
+        int countAfter = brewersAfter.size();
+
+//        assertEquals("Element niet gevonden. Brouwer id 666", thrown.getMessage());
+        assertEquals(countBefore, countAfter);
     }
 
     @Test

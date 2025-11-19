@@ -1,10 +1,7 @@
 package repository;
 
 import app.FeedbackToUserException;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityTransaction;
-import jakarta.persistence.NoResultException;
-import jakarta.persistence.RollbackException;
+import jakarta.persistence.*;
 import jakarta.persistence.criteria.CriteriaQuery;
 import org.junit.platform.commons.util.ReflectionUtils;
 
@@ -13,6 +10,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
+
+import static config.JpaConfig.getEntityManager;
 
 public class GenericRepositoryImpl<T, ID> implements GenericRepository<T, ID> {
 
@@ -33,6 +32,18 @@ public class GenericRepositoryImpl<T, ID> implements GenericRepository<T, ID> {
 
     @Override
     public T findById(EntityManager entityManager, ID id) {
+//        T entity = entityManager.find(entityClass, id);
+//        return entity;
+        String tableName = entityClass.getSimpleName();
+        String queryString = "SELECT u FROM " + tableName + " u WHERE u.id=:id";
+        TypedQuery<T> typedQuery = getEntityManager().createQuery(queryString, entityClass);
+//        typedQuery.setParameter("type", entityClass);
+        typedQuery.setParameter("id", id);
+        return typedQuery.getSingleResult();
+    }
+
+    @Override
+    public T findById_lazyLoadingHack(EntityManager entityManager, ID id) {
         T entity = entityManager.find(entityClass, id);
 
         // https://stackoverflow.com/questions/51837798/get-associated-getter-setter-of-field-member-variable
@@ -73,15 +84,14 @@ public class GenericRepositoryImpl<T, ID> implements GenericRepository<T, ID> {
 
     @Override
     public void deleteById(EntityManager entityManager, ID id) throws RollbackException, NoResultException {
-        //EntityTransaction transaction = entityManager.getTransaction();
-        //transaction.begin();
-        entityManager.getTransaction().begin();
+        EntityTransaction transaction = entityManager.getTransaction();
+        transaction.begin();
         T entity = findById(entityManager, id);
         if (entity != null) {
             entityManager.remove(entity);
-            entityManager.getTransaction().commit();
+            transaction.commit();
         }else {
-            entityManager.getTransaction().rollback();
+            transaction.rollback();
             throw new NoResultException();
         }
     }
