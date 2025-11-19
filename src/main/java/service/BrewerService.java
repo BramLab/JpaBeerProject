@@ -55,10 +55,6 @@ public class BrewerService {
             if(brewerFromRepo == null){
                 throw new FeedbackToUserException("Brouwer bestaat nog niet in database.");
             }
-//            transaction.rollback();
-//            if (!em.contains(brewer)){
-//                throw new FeedbackToUserException("Brouwer mogelijk veranderd ondertussen. Ververs eerst.");
-//            }
             brewerRepository.update(em, brewer);
             transaction.commit();
         } finally {
@@ -79,13 +75,6 @@ public class BrewerService {
         } finally {
             em.close();
         }
-    }
-
-    public boolean isDetached(Brewer brewer) {
-        EntityManager em = JpaConfig.getEntityManager();
-        return brewer.getId() != 0  // must not be transient
-                && !em.contains(brewer)  // must not be managed now
-                && em.find(Brewer.class, brewer.getId()) != null;  // must not have been removed
     }
 
 }

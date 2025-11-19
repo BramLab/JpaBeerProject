@@ -36,8 +36,8 @@ public class GenericRepositoryImpl<T, ID> implements GenericRepository<T, ID> {
     public T findById(EntityManager entityManager, ID id) {
 //        T entity = entityManager.find(entityClass, id);
 //        return entity;
-        String tableName = entityClass.getSimpleName();
-        String queryString = "SELECT u FROM " + tableName + " u WHERE u.id=:id";
+
+        String queryString = "SELECT u FROM " + entityClass.getSimpleName() + " u WHERE u.id=:id";
         TypedQuery<T> typedQuery = entityManager.createQuery(queryString, entityClass);
         typedQuery.setParameter("id", id);
         if  (!typedQuery.getResultList().isEmpty()) {
@@ -92,7 +92,6 @@ public class GenericRepositoryImpl<T, ID> implements GenericRepository<T, ID> {
         entityManager.getTransaction().begin();
         T entity = findById(entityManager, id);
         if (entity != null) {
-            //delete(entityManager, entity);
             entityManager.remove(entity);
             entityManager.getTransaction().commit();
         }else {

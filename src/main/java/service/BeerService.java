@@ -4,7 +4,6 @@ import app.FeedbackToUserException;
 import config.JpaConfig;
 import jakarta.persistence.*;
 import model.Beer;
-import model.Category;
 import repository.GenericRepository;
 import repository.GenericRepositoryImpl;
 
@@ -13,7 +12,6 @@ import java.util.Optional;
 
 public class BeerService {
 
-    //private BeerRepository beerRepository = new BeerRepository();
     GenericRepository<Beer, Long> beerRepository = new GenericRepositoryImpl<>(Beer.class);
 
     public void create(Beer entity) {
@@ -46,7 +44,20 @@ public class BeerService {
     public void update(Beer beer){
         EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
         try{
+
+            EntityTransaction transaction = em.getTransaction();
+            transaction.begin();
+
+            // unlikely. (untested)
+            if (beer.getId() == 0){
+                throw new FeedbackToUserException("Bier bestaat nog niet in database. (0)");
+            }
+            Beer beerFromRepo = beerRepository.findById(em, beer.getId());
+            if(beerFromRepo == null){
+                throw new FeedbackToUserException("Bier bestaat nog niet in database. (null)");
+            }
             beerRepository.update(em, beer);
+            transaction.commit();
         } finally {
             em.close();
         }
@@ -56,10 +67,8 @@ public class BeerService {
         EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
         try{
             beerRepository.deleteById(em, id);
-        } catch (RollbackException rbe) {
-            throw new FeedbackToUserException("Dit element wordt nog voor andere elementen gebruikt." + " Brouwer id " + id);
         }catch(NoResultException nre){
-            throw new FeedbackToUserException("Element niet gevonden." + " Brouwer id " + id);
+            throw new FeedbackToUserException("Element niet gevonden." + " Bier id " + id);
         } finally {
             em.close();
         }

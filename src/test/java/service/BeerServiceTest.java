@@ -9,6 +9,9 @@ import org.apache.logging.log4j.Logger;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.junit.jupiter.api.*;
 
+import java.util.List;
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 class BeerServiceTest {
 
@@ -46,7 +49,7 @@ class BeerServiceTest {
     }
 
     @Test
-    void create() {
+    void testCreate() {
         // Arrange
         insertTestData();
         Beer beer = new Beer("Roman Pils", 1.5F, 3.2F,
@@ -62,22 +65,45 @@ class BeerServiceTest {
     }
 
     @Test
-    void findById() {
-        assertTrue(false);
+    void testFindById() {
+        insertTestData();
+
+        Optional<Beer> beer = beerService.findById(1);
+
+        Assertions.assertEquals("bier1", beer.get().getName());
+        Assertions.assertEquals("brewer1", beer.get().getBrewer().getName());
+        Assertions.assertEquals("category1", beer.get().getCategory().getName());
     }
 
     @Test
-    void findAll() {
-        assertTrue(false);
+    void testFindAll() {
+        insertTestData();
+
+        List<Beer> beers = beerService.findAll();
+
+        Assertions.assertEquals(3, beers.size());
+        Assertions.assertEquals("bier1", beers.get(0).getName());
+        Assertions.assertEquals(2.0F, beers.get(0).getPrice());
+        Assertions.assertEquals("bier2", beers.get(1).getName());
+        Assertions.assertEquals("bier3", beers.get(2).getName());
     }
 
     @Test
-    void update() {
-        assertTrue(false);
+    void testUpdate() {
+        insertTestData();
+        Beer beer = beerService.findById(3).get();
+        beer.setName("NAME");
+        beer.setAlcoholPercentage(9.5F);
+
+        beerService.update(beer);
+
+        Beer updatedBeer = beerService.findById(3).get();
+        Assertions.assertEquals("NAME", updatedBeer.getName());
+        Assertions.assertEquals(9.5F, updatedBeer.getAlcoholPercentage());
     }
 
     @Test
-    void deleteById_expectSuccess() {
+    void testDeleteById_expectSuccess() {
         // Arrange
         insertTestData();
         assertTrue(beerService.findById(2).isPresent());
@@ -87,6 +113,16 @@ class BeerServiceTest {
 
         // Assert
         assertFalse(beerService.findById(2).isPresent());
+    }
+
+    @Test
+    void testDeleteById_entityNotFound(){
+        insertTestData();
+
+        Exception thrown = assertThrows(app.FeedbackToUserException.class,
+                () -> {  beerService.deleteById(555);  }
+        );
+        assertEquals("Element niet gevonden. Bier id 555", thrown.getMessage());
     }
 
     private static void insertTestData() {

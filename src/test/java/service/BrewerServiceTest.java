@@ -145,12 +145,6 @@ class BrewerServiceTest {
         assertFalse(brewerService.findById(2).isPresent());
     }
 
-    // DeleteById seems not very safe -> if someone else just updated element values, it will still be deleted.
-    // What if someone is in the process of updating?
-    // Is Delete by element safer? -> it holds its latest (~transaction/~session?) state.
-    // We could verify that the service first loads the latest version and then deletes that one?
-
-
     @Test
     void testDeleteById_entityNotFound(){
         insertTestData();

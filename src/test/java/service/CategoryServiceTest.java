@@ -9,6 +9,9 @@ import org.apache.logging.log4j.Logger;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.junit.jupiter.api.*;
 
+import java.util.List;
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class CategoryServiceTest {
@@ -47,7 +50,7 @@ class CategoryServiceTest {
     }
 
     @Test
-    void create() {
+    void testCreate() {
         // Arrange
         Category category = new Category("Strong beer", "A stong kind of beer");
         long idBefore = category.getId();
@@ -61,18 +64,40 @@ class CategoryServiceTest {
     }
 
     @Test
-    void findById() {
-        assertTrue(false);
+    void testFindById() {
+        insertTestData();
+
+        Optional<Category> category = categoryService.findById(1);
+
+        Assertions.assertTrue(category.get().getName().equals("category1"));
+        Assertions.assertEquals(1, category.get().getBeers().size());
     }
 
     @Test
-    void findAll() {
-        assertTrue(false);
+    void testFindAll() {
+        insertTestData();
+
+        List<Category> categories = categoryService.findAll();
+
+        Assertions.assertEquals(3, categories.size());
+        Assertions.assertEquals("category1", categories.get(0).getName());
+        Assertions.assertEquals("descr1", categories.get(0).getDescription());
+        Assertions.assertEquals("category2", categories.get(1).getName());
+        Assertions.assertEquals("category3", categories.get(2).getName());
     }
 
     @Test
-    void update() {
-        assertTrue(false);
+    void testUpdate() {
+        insertTestData();
+        Category category = categoryService.findById(3).get();
+        category.setName("NAME");
+        category.setDescription("DESCRIPTION");
+
+        categoryService.update(category);
+
+        Category updatedCategory = categoryService.findById(3).get();
+        Assertions.assertEquals("NAME", updatedCategory.getName());
+        Assertions.assertEquals("DESCRIPTION", updatedCategory.getDescription());
     }
 
     @Test
@@ -86,6 +111,27 @@ class CategoryServiceTest {
 
         // Assert
         assertFalse(categoryService.findById(2).isPresent());
+    }
+
+    @Test
+    void testDeleteById_entityNotFound(){
+        insertTestData();
+
+        Exception thrown = assertThrows(app.FeedbackToUserException.class,
+                () -> {  categoryService.deleteById(777);  }
+        );
+        assertEquals("Element niet gevonden. Categorie id 777", thrown.getMessage());
+    }
+
+    @Test
+    void testDeleteById_entityInUseByOtherElement__FK() {
+        insertTestData();
+        assertTrue(categoryService.findById(1).isPresent());
+
+        Exception thrown = assertThrows(app.FeedbackToUserException.class,
+                () -> {  categoryService.deleteById(3);  }
+        );
+        assertEquals("Dit element wordt nog voor andere elementen gebruikt. Categorie id 3", thrown.getMessage());
     }
 
     private static void insertTestData() {

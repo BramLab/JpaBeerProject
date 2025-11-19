@@ -57,9 +57,9 @@ public class CategoryService {
         try{
             categoryRepository.deleteById(em, id);
         } catch (RollbackException rbe) {
-            throw new FeedbackToUserException("Dit element wordt nog voor andere elementen gebruikt." + " Brouwer id " + id);
+            throw new FeedbackToUserException("Dit element wordt nog voor andere elementen gebruikt." + " Categorie id " + id);
         }catch(NoResultException nre){
-            throw new FeedbackToUserException("Element niet gevonden." + " Brouwer id " + id);
+            throw new FeedbackToUserException("Element niet gevonden." + " Categorie id " + id);
         } finally {
             em.close();
         }

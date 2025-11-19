@@ -12,6 +12,13 @@ FeedbackToUserException in genericRepo or in specific service?
     - but it seems logical also to have user feedback & interaction coming from the service...
     -> CONFIRM HILAL: validatie in service.
 
+DeleteById seems not very safe -> if someone else just updated element values, it will still be deleted.
+    What if someone is in the process of updating?
+    Is Delete by element safer? -> if it holds its latest (~transaction/em/~session?) state?
+    We could verify that the service first loads the latest version and then deletes that one?
+
+
+
 Cascade:
 
 Keep session in service: findById & update (object might change by someone else before own changes committed.
@@ -101,3 +108,12 @@ Problem json: https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-
 //            delete(entityManager, entity);
 //        }
 //    }
+
+---
+Also unused:
+    public boolean isDetached(Brewer brewer) {
+        EntityManager em = JpaConfig.getEntityManager();
+        return brewer.getId() != 0  // must not be transient
+                && !em.contains(brewer)  // must not be managed now
+                && em.find(Brewer.class, brewer.getId()) != null;  // must not have been removed
+    }
