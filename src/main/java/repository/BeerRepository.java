@@ -1,16 +1,12 @@
 package repository;
 
-import config.JpaConfig;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.TypedQuery;
 import model.Beer;
 
 import java.util.List;
-import java.util.Optional;
 
-public class BeerRepository extends GenericRepositoryImpl{
+public class BeerRepository extends GenericRepositoryImpl<Beer, Long> {
 
     public BeerRepository() {
         super(Beer.class);
@@ -27,9 +23,9 @@ public class BeerRepository extends GenericRepositoryImpl{
 //    o findBeersCheaperThan(double maxPrice)
 
     public List<Beer> findBeersByCategory(EntityManager entityManager, long categoryId) {
-        String queryString = "SELECT b FROM beer b WHERE b.category_id=:category_id";
+        String queryString = "SELECT b FROM model.Beer b WHERE b.category.id=:categoryId";
         TypedQuery<Beer> typedQuery = entityManager.createQuery(queryString, Beer.class);
-        typedQuery.setParameter("category_id", categoryId);
+        typedQuery.setParameter("categoryId", categoryId);
         if (!typedQuery.getResultList().isEmpty()) {
             return typedQuery.getResultList();
         } else {
@@ -37,19 +33,26 @@ public class BeerRepository extends GenericRepositoryImpl{
         }
     }
 
-    @Override
-    public Beer findById(EntityManager entityManager, long id) {
-        Beer entity = (Beer) entityManager.find(getEntityClass(), id);
-        return entity;
+    public List<Beer> findBeersByBrewer(EntityManager entityManager, long brewerId) {
+        String queryString = "SELECT b FROM model.Beer b WHERE b.brewer.id=:brewerId";
+        TypedQuery<Beer> typedQuery = entityManager.createQuery(queryString, Beer.class);
+        typedQuery.setParameter("brewerId", brewerId);
+        if (!typedQuery.getResultList().isEmpty()) {
+            return typedQuery.getResultList();
+        } else {
+            return null;
+        }
+    }
 
-//        String queryString = "SELECT u FROM " + getEntityClass().getSimpleName() + " u WHERE u.id=:id";
-//        TypedQuery<T> typedQuery = entityManager.createQuery(queryString, getEntityClass());
-//        typedQuery.setParameter("id", id);
-//        if  (!typedQuery.getResultList().isEmpty()) {
-//            return entityManager.find(getEntityClass(), id);
-//        } else {
-//            return null;
-//        }
+    public List<Beer> findBeersCheaperThan(EntityManager entityManager, float maxPrice) {
+        String queryString = "SELECT b FROM model.Beer b WHERE b.price < :maxPrice";
+        TypedQuery<Beer> typedQuery = entityManager.createQuery(queryString, Beer.class);
+        typedQuery.setParameter("maxPrice", maxPrice);
+        if (!typedQuery.getResultList().isEmpty()) {
+            return typedQuery.getResultList();
+        } else {
+            return null;
+        }
     }
 
 }

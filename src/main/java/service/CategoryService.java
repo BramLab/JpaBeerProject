@@ -3,7 +3,10 @@ package service;
 import app.FeedbackToUserException;
 import config.JpaConfig;
 import jakarta.persistence.*;
+import model.Brewer;
 import model.Category;
+import repository.BrewerRepository;
+import repository.CategoryRepository;
 import repository.GenericRepository;
 import repository.GenericRepositoryImpl;
 
@@ -12,7 +15,7 @@ import java.util.Optional;
 
 public class CategoryService {
 
-    GenericRepository<Category, Long> categoryRepository = new GenericRepositoryImpl<>(Category.class);
+    private CategoryRepository categoryRepository = new CategoryRepository();
 
     public void create(Category entity) {
         EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
@@ -27,7 +30,7 @@ public class CategoryService {
         EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
         Category entity;
         try{
-            entity = categoryRepository.findById(em, id);
+            entity = (Category) categoryRepository.findById(em, id);
         } catch(EntityNotFoundException ignored){
             return Optional.empty();
         } catch(Exception e) {
@@ -64,5 +67,12 @@ public class CategoryService {
             em.close();
         }
     }
+
+    public List<Category> findCategoriesByName(String name){
+        EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
+        return categoryRepository.findCategoriesByName(em, name);
+    }
+
+
     
 }

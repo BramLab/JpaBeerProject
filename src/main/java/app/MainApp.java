@@ -30,7 +30,7 @@ public class MainApp {
         insertTestData();
 
         Menu menu = new Menu("\nHoofdmenu\n", "Keuze: ", "0");
-        menu.addMenuOption("1", "Brouwerijen", () -> mainApp.manageBreweries() );
+        menu.addMenuOption("1", "Brouwerijen", () -> mainApp.manageBrewers() );
         menu.addMenuOption("2", "Bieren", () -> mainApp.manageBeers() );
         menu.addMenuOption("3", "Categorieën", () -> mainApp.manageCategories() );
         menu.addMenuOption("0", "Exit", () -> {});
@@ -39,23 +39,24 @@ public class MainApp {
         JpaConfig.shutdown();
     }
 
-
-    void manageBreweries(){
+    void manageBrewers(){
         Menu menu = new Menu("\nBrouwerijen\n", "Keuze: ", "0");
-        menu.addMenuOption("1", "Toevoegen", () -> addBrewery() );
-        menu.addMenuOption("2", "Zoeken", () -> findBrewery() );
-        menu.addMenuOption("3", "Toon alle", () -> findAllBreweries() );
-        menu.addMenuOption("4", "Aanpassen", () -> updateBrewery() );
-        menu.addMenuOption("5", "Verwijder", () -> deleteBrewery() );
+        menu.addMenuOption("1", "Toevoegen", () -> addBrewer() );
+        menu.addMenuOption("2", "Zoeken", () -> findBrewer() );
+        menu.addMenuOption("3", "Toon alle", () -> findAllBrewers() );
+        menu.addMenuOption("4", "Aanpassen", () -> updateBrewer() );
+        menu.addMenuOption("5", "Verwijder", () -> deleteBrewer() );
+        menu.addMenuOption("6", "Vind op naam", () -> findBrewersByName() );
+        menu.addMenuOption("7", "Toon met aantal bieren", () -> findAllBrewersWithBeerCount() );
         menu.addMenuOption("0", "Exit", () -> {});
         menu.run();
     }
 
-    void addBrewery(){
+    void addBrewer(){
         brewerService.create(new Brewer(scanString("Naam: "), scanString("Locatie: ")));
     }
 
-    void findBrewery() {
+    void findBrewer() {
         Optional<Brewer> brewer = brewerService.findById(scanLong("Id: "));
         if (brewer.isPresent()) {
             System.out.println(brewer.get());
@@ -66,15 +67,38 @@ public class MainApp {
             throw new FeedbackToUserException("Brouwer niet gevonden.");
         }
     }
+    
+    void findBrewersByName(){
+        List<Brewer> brewers = brewerService.findBrewersByName(scanString("Naam: "));
+        if (brewers.size() > 0) {
+            for(Brewer brewer : brewers){
+                System.out.println(brewer.toString());
+            }
+        }else {
+            throw new FeedbackToUserException("Brouwer niet gevonden.");
+        }
+    }
 
-    void findAllBreweries(){
-        List<Brewer> breweries = brewerService.findAll();
-        for(Brewer brewer : breweries){
+    void findAllBrewersWithBeerCount(){
+        List<Object[]> brewers = brewerService.findAllBrewersWithBeerCount();
+        // Claude.ai :-)
+        for (Object[] row : brewers) {
+            Long id = (Long) row[0];
+            String name = (String) row[1];
+            String location = (String) row[2];
+            Long count = (Long) row[3];
+            System.out.println(id + " - " + name + " - " + location + " - " + count);
+        }
+    }
+
+    void findAllBrewers(){
+        List<Brewer> brewers = brewerService.findAll();
+        for(Brewer brewer : brewers){
             System.out.println(brewer.toString());
         }
     }
 
-    void updateBrewery(){
+    void updateBrewer(){
         Optional<Brewer> optionalBrewer = brewerService.findById(scanLong("Id: "));
         if (optionalBrewer.isPresent()){
             Brewer brewer = optionalBrewer.get();
@@ -87,10 +111,9 @@ public class MainApp {
         }
     }
 
-    void deleteBrewery(){
+    void deleteBrewer(){
         brewerService.deleteById(scanLong("Id: "));
     }
-
 
     void manageBeers(){
         Menu menu = new Menu("\nBieren\n", "Keuze: ", "0");
@@ -100,6 +123,8 @@ public class MainApp {
         menu.addMenuOption("4", "Aanpassen", () -> updateBeer() );
         menu.addMenuOption("5", "Verwijder", () -> deleteBeer() );
         menu.addMenuOption("6", "Toon per category", () -> findBeersByCategory() );
+        menu.addMenuOption("7", "Toon per brouwer", () -> findBeersByBrewerId() );
+        menu.addMenuOption("8", "Toon goedkoper dan", () -> findBeersCheaperThan() );
         menu.addMenuOption("0", "Exit", () -> {});
         menu.run();
     }
@@ -117,8 +142,6 @@ public class MainApp {
         Optional<Beer> beer = beerService.findById(scanLong("Id: "));
         if (beer.isPresent()) {
             System.out.println(beer.get());
-            System.out.println(beer.get().getCategory());
-            System.out.println(beer.get().getBrewer());
         }else {
             System.out.println("Niet gevonden.");
         }
@@ -133,6 +156,20 @@ public class MainApp {
 
     void findBeersByCategory(){
         List<Beer> beers = beerService.findByCategoryId(scanLong("Id: "));
+        for(Beer beer : beers){
+            System.out.println(beer.toString());
+        }
+    }
+
+    void findBeersByBrewerId(){
+        List<Beer> beers = beerService.findByBrewerId(scanLong("Id: "));
+        for(Beer beer : beers){
+            System.out.println(beer.toString());
+        }
+    }
+
+    void findBeersCheaperThan(){
+        List<Beer> beers = beerService.findBeersCheaperThan(scanFloat("Limietprijs (excl): "));
         for(Beer beer : beers){
             System.out.println(beer.toString());
         }
@@ -171,6 +208,7 @@ public class MainApp {
         menu.addMenuOption("3", "Toon alle", () -> findAllCategories() );
         menu.addMenuOption("4", "Aanpassen", () -> updateCategory() );
         menu.addMenuOption("5", "Verwijder", () -> deleteCategory() );
+        menu.addMenuOption("6", "Zoek op naam", () -> findCategoriesByName() );
         menu.addMenuOption("0", "Exit", () -> {});
         menu.run();
     }
@@ -220,6 +258,19 @@ public class MainApp {
         }
     }
 
+    void findCategoriesByName(){
+        List<Category> categories = categoryService.findCategoriesByName(scanString("Naam: "));
+        if (categories.size() > 0) {
+            for(Category category : categories){
+                System.out.println(category.toString());
+            }
+        }else {
+            throw new FeedbackToUserException("Categorie niet gevonden.");
+        }
+    }
+
+
+
     private static void insertTestData() {
         Brewer brewer1 = new Brewer("brewer1", "Bx");
         Brewer brewer2 = new Brewer("brewer2", "Antwerpen");
@@ -240,6 +291,5 @@ public class MainApp {
         beerService.create(beer2);
         beerService.create(beer3);
     }
-
 
 }

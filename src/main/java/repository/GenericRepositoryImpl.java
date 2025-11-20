@@ -4,6 +4,7 @@ import app.FeedbackToUserException;
 import config.JpaConfig;
 import jakarta.persistence.*;
 import jakarta.persistence.criteria.CriteriaQuery;
+import model.Beer;
 import model.Brewer;
 import org.junit.platform.commons.util.ReflectionUtils;
 
@@ -15,7 +16,7 @@ import java.util.List;
 
 import static config.JpaConfig.getEntityManager;
 
-public class GenericRepositoryImpl<T, ID> implements GenericRepository<T, ID> {
+public abstract class GenericRepositoryImpl<T, ID> implements GenericRepository<T, ID> {
 
     private Class<T> entityClass;
 
@@ -109,22 +110,5 @@ public class GenericRepositoryImpl<T, ID> implements GenericRepository<T, ID> {
             throw new NoResultException();
         }
     }
-
-//    public boolean isDetached(EntityManager em, T entity) {
-//        return entity.getId() != 0  // must not be transient
-//                && !em.contains(entity)  // must not be managed now
-//                && em.find(getEntityClass(), entity.getId()) != null;  // must not have been removed
-//
-//        try{
-//            Method getId = entity.getClass().getDeclaredMethod("getId");
-//            int entityId = (int) getId.invoke(entity);
-//        } catch(NoSuchMethodException e){
-//            //
-//        } catch (InvocationTargetException e) {
-//            throw new RuntimeException(e);
-//        } catch (IllegalAccessException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
 
 }

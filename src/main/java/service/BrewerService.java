@@ -4,14 +4,14 @@ import app.FeedbackToUserException;
 import config.JpaConfig;
 import jakarta.persistence.*;
 import model.Brewer;
-import repository.GenericRepository;
-import repository.GenericRepositoryImpl;
+import repository.BrewerRepository;
 
 import java.util.List;
 import java.util.Optional;
 
 public class BrewerService {
-    private GenericRepository<Brewer, Long> brewerRepository = new GenericRepositoryImpl<>(Brewer.class);
+
+    private BrewerRepository brewerRepository = new BrewerRepository();
 
     public void create(Brewer brewer) {
         EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
@@ -26,7 +26,7 @@ public class BrewerService {
         EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
         Brewer brewer;
         try {
-            brewer = brewerRepository.findById(em, id);
+            brewer = (Brewer) brewerRepository.findById(em, id);
             if (brewer != null) {
                 int fetchAllHack = brewer != null ? brewer.getBeers().size() : 0;
             }
@@ -36,6 +36,16 @@ public class BrewerService {
             em.close();
         }
         return Optional.ofNullable(brewer);
+    }
+
+    public List<Brewer> findBrewersByName(String name){
+        EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
+        return brewerRepository.findBrewerByName(em, name);
+    }
+
+    public List<Object[]> findAllBrewersWithBeerCount(){
+        EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
+        return brewerRepository.findAllBrewersWithBeerCount(em);
     }
 
     public List<Brewer> findAll(){
@@ -51,7 +61,7 @@ public class BrewerService {
             if (brewer.getId() == 0){
                 throw new FeedbackToUserException("Brouwer bestaat nog niet in database.");
             }
-            Brewer brewerFromRepo = brewerRepository.findById(em, brewer.getId());
+            Brewer brewerFromRepo = (Brewer) brewerRepository.findById(em, brewer.getId());
             if(brewerFromRepo == null){
                 throw new FeedbackToUserException("Brouwer bestaat nog niet in database.");
             }

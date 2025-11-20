@@ -8,6 +8,11 @@ import lombok.ToString;
 
 import java.util.List;
 
+@NamedQueries(
+        @NamedQuery(name = "Category.findCategoriesByName",
+                query = "SELECT c FROM model.Category c WHERE c.name like CONCAT('%',:name,'%')")
+)
+
 @Data
 @NoArgsConstructor
 @Entity
@@ -29,4 +34,5 @@ public class Category {
         this.name = name;
         this.description = description;
     }
+
 }

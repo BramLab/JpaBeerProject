@@ -45,6 +45,7 @@ Show all Beers should show categories & brewers, so bypass lazy loading.
 • Abstracte BaseRepository<T> bouwen
 
 • Lazy-loading elegant oplossen
+// https://stackoverflow.com/questions/51837798/get-associated-getter-setter-of-field-member-variable
 Optimised version by AI:
 https://claude.ai/chat/3e5aaab5-b436-4c5f-b2df-4a4b29da6a8f
 for (Field field : entity.getClass().getDeclaredFields()) {
@@ -89,11 +90,11 @@ These queries are the sql statements which can be directly executed in database 
 
 
 • Command pattern toepassen in MainApp
-This site seems to describe a version that i already had with Menu (& MenuOption inner class):
+This site seems to describe a version resembling current Menu (& MenuOption inner class):
     https://ajayiyengar.com/2017/04/12/command-pattern-using-java-8-lambdas/
 
-
 • Logging (Log4j/SLF4J) toevoegen
+Gave a lot of trouble and no advantage. Probably because i didn't use it.
 https://logging.apache.org/log4j/2.x/manual/getting-started.html
 In pom.xm:
     Log4j 2 is broken up in an API and an implementation (core), where the API provides the interface that applications

@@ -13,7 +13,6 @@ import java.util.Optional;
 
 public class BeerService {
 
-    //GenericRepository<Beer, Long> beerRepository = new GenericRepositoryImpl<>(Beer.class);
     BeerRepository beerRepository = new BeerRepository();
 
     public void create(Beer entity) {
@@ -29,7 +28,7 @@ public class BeerService {
         EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
         Beer entity;
         try{
-            entity = (Beer) beerRepository.findById(em, id);
+            entity = beerRepository.findById(em, id);
         } catch(EntityNotFoundException ignored){
             return Optional.empty();
         } catch (Exception e) {
@@ -48,6 +47,16 @@ public class BeerService {
         return beerRepository.findBeersByCategory(em, id);
     }
 
+    public List<Beer> findByBrewerId(long id){
+        EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
+        return beerRepository.findBeersByBrewer(em, id);
+    }
+
+    public List<Beer> findBeersCheaperThan(float maxPrice){
+        EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
+        return beerRepository.findBeersCheaperThan(em, maxPrice);
+    }
+
     public void update(Beer beer){
         EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
         try{
@@ -59,7 +68,7 @@ public class BeerService {
             if (beer.getId() == 0){
                 throw new FeedbackToUserException("Bier bestaat nog niet in database. (0)");
             }
-            Beer beerFromRepo = (Beer) beerRepository.findById(em, beer.getId());
+            Beer beerFromRepo = beerRepository.findById(em, beer.getId());
             if(beerFromRepo == null){
                 throw new FeedbackToUserException("Bier bestaat nog niet in database. (null)");
             }
