@@ -11,9 +11,7 @@ import service.BrewerService;
 import service.CategoryService;
 import java.util.List;
 import java.util.Optional;
-
-import static app.Helper.*;
-
+import static app.InputHelper.*;
 
 public class MainApp {
 
@@ -101,6 +99,7 @@ public class MainApp {
         menu.addMenuOption("3", "Toon alle", () -> findAllBeers() );
         menu.addMenuOption("4", "Aanpassen", () -> updateBeer() );
         menu.addMenuOption("5", "Verwijder", () -> deleteBeer() );
+        menu.addMenuOption("6", "Toon per category", () -> findBeersByCategory() );
         menu.addMenuOption("0", "Exit", () -> {});
         menu.run();
     }
@@ -127,6 +126,13 @@ public class MainApp {
 
     void findAllBeers(){
         List<Beer> beers = beerService.findAll();
+        for(Beer beer : beers){
+            System.out.println(beer.toString());
+        }
+    }
+
+    void findBeersByCategory(){
+        List<Beer> beers = beerService.findByCategoryId(scanLong("Id: "));
         for(Beer beer : beers){
             System.out.println(beer.toString());
         }

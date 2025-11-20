@@ -23,32 +23,32 @@ class BrewerServiceTest {
     private static final Logger LOGGER = LogManager.getLogger();
 
     @BeforeEach
-    void setUp() {
-        brewerService = new BrewerService();
-        categoryService = new CategoryService();
-        beerService = new BeerService();
+        void setUp() {
+            brewerService = new BrewerService();
+            categoryService = new CategoryService();
+            beerService = new BeerService();
 
-        JpaConfig.getEntityManagerFactory()
-                .unwrap(SessionFactoryImplementor.class)
-                .getSchemaManager()
-                .truncateMappedObjects();
-    }
+            JpaConfig.getEntityManagerFactory()
+                    .unwrap(SessionFactoryImplementor.class)
+                    .getSchemaManager()
+                    .truncateMappedObjects();
+        }
 
-    @AfterEach
-    void tearDown() {
-        brewerService = null;
-        categoryService = null;
-        beerService = null;
-    }
+        @AfterEach
+        void tearDown() {
+            brewerService = null;
+            categoryService = null;
+            beerService = null;
+        }
 
-    @AfterAll
-    static void tearDownAll() {
-        // https://stackoverflow.com/questions/9903341/cleanup-after-all-junit-tests
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            System.out.println("Running Shutdown Hook");
-            JpaConfig.shutdown();
-        }));
-    }
+        @AfterAll
+        static void tearDownAll() {
+            // https://stackoverflow.com/questions/9903341/cleanup-after-all-junit-tests
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                System.out.println("Running Shutdown Hook");
+                JpaConfig.shutdown();
+            }));
+        }
 
     @Test
     void testCreate() {

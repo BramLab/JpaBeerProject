@@ -12,10 +12,20 @@ FeedbackToUserException in genericRepo or in specific service?
     - but it seems logical also to have user feedback & interaction coming from the service...
     -> CONFIRM HILAL: validatie in service.
 
+Testing: test mainApp & controllers instead of services?
+    TODO: mock scanner...
+    https://stackoverflow.com/questions/31635698/junit-testing-for-user-input-using-scanner/31635953#31635953
+
+Concurrent access: handle multiple transactions error-proof.
+Update & Delete should either lock (pessimistic) or read version (optimistic, @Version) of record, before change.
+
 DeleteById seems not very safe -> if someone else just updated element values, it will still be deleted.
     What if someone is in the process of updating?
     Is Delete by element safer? -> if it holds its latest (~transaction/em/~session?) state?
     We could verify that the service first loads the latest version and then deletes that one?
+
+=> https://www.baeldung.com/jpa-optimistic-locking   (personal preference)
+=> https://www.baeldung.com/jpa-pessimistic-locking
 
 
 

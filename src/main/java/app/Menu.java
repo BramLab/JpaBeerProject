@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static app.Helper.scanString;
+import static app.InputHelper.scanString;
 
 public class Menu {
     String menuHeader, menuFooter;
@@ -82,11 +82,8 @@ public class Menu {
         void execute();
     }
 
-
-
     // Example usage.
     public static void main(String[] args) {
-
         Menu menu = new Menu("Hoofdmenu\n", "Keuze? ", "0");
         menu.addMenuOption("1", "Doe A direct", () -> doA() );
         menu.addMenuOption("2", "Naar Submenu", () -> menuB() );

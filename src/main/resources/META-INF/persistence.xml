@@ -9,6 +9,9 @@
             <property name="jakarta.persistence.jdbc.user" value="intec"/>
             <property name="jakarta.persistence.jdbc.password" value="intec-123"/>
 
+<!-- https://stackoverflow.com/questions/58375169/how-to-solve-using-hibernate-built-in-connection-pool-not-for-production-use-->
+            <property name="hibernate.connection.pool_size" value="10" />
+
             <property name="hibernate.show_sql" value="false"/>
             <property name="hibernate.format_sql" value="true"/>
             <property name="hibernate.hbm2ddl.auto" value="create"/>

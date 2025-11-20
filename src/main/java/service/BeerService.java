@@ -4,6 +4,7 @@ import app.FeedbackToUserException;
 import config.JpaConfig;
 import jakarta.persistence.*;
 import model.Beer;
+import repository.BeerRepository;
 import repository.GenericRepository;
 import repository.GenericRepositoryImpl;
 
@@ -12,7 +13,8 @@ import java.util.Optional;
 
 public class BeerService {
 
-    GenericRepository<Beer, Long> beerRepository = new GenericRepositoryImpl<>(Beer.class);
+    //GenericRepository<Beer, Long> beerRepository = new GenericRepositoryImpl<>(Beer.class);
+    BeerRepository beerRepository = new BeerRepository();
 
     public void create(Beer entity) {
         EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
@@ -27,7 +29,7 @@ public class BeerService {
         EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
         Beer entity;
         try{
-            entity = beerRepository.findById(em, id);
+            entity = (Beer) beerRepository.findById(em, id);
         } catch(EntityNotFoundException ignored){
             return Optional.empty();
         } catch (Exception e) {
@@ -41,6 +43,11 @@ public class BeerService {
         return beerRepository.findAll(em);
     }
 
+    public List<Beer> findByCategoryId(long id){
+        EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
+        return beerRepository.findBeersByCategory(em, id);
+    }
+
     public void update(Beer beer){
         EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
         try{
@@ -52,7 +59,7 @@ public class BeerService {
             if (beer.getId() == 0){
                 throw new FeedbackToUserException("Bier bestaat nog niet in database. (0)");
             }
-            Beer beerFromRepo = beerRepository.findById(em, beer.getId());
+            Beer beerFromRepo = (Beer) beerRepository.findById(em, beer.getId());
             if(beerFromRepo == null){
                 throw new FeedbackToUserException("Bier bestaat nog niet in database. (null)");
             }

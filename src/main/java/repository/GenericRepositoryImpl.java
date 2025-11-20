@@ -17,11 +17,21 @@ import static config.JpaConfig.getEntityManager;
 
 public class GenericRepositoryImpl<T, ID> implements GenericRepository<T, ID> {
 
-    private final Class<T> entityClass;
+    private Class<T> entityClass;
 
     public GenericRepositoryImpl(Class<T> entityClass) {
         this.entityClass = entityClass;
     }
+
+    public Class<T> getEntityClass() {
+        return entityClass;
+    }
+//
+//    public void setEntityClass(Class<T> entityClass) {
+//        this.entityClass = entityClass;
+//    }
+
+    public GenericRepositoryImpl(){}
 
     @Override
     public T create(EntityManager entityManager, T entity) {
@@ -34,22 +44,22 @@ public class GenericRepositoryImpl<T, ID> implements GenericRepository<T, ID> {
 
     @Override
     public T findById(EntityManager entityManager, ID id) {
-//        T entity = entityManager.find(entityClass, id);
-//        return entity;
+        T entity = entityManager.find(getEntityClass(), id);
+        return entity;
 
-        String queryString = "SELECT u FROM " + entityClass.getSimpleName() + " u WHERE u.id=:id";
-        TypedQuery<T> typedQuery = entityManager.createQuery(queryString, entityClass);
-        typedQuery.setParameter("id", id);
-        if  (!typedQuery.getResultList().isEmpty()) {
-            return entityManager.find(entityClass, id);
-        } else {
-            return null;
-        }
+//        String queryString = "SELECT u FROM " + getEntityClass().getSimpleName() + " u WHERE u.id=:id";
+//        TypedQuery<T> typedQuery = entityManager.createQuery(queryString, getEntityClass());
+//        typedQuery.setParameter("id", id);
+//        if  (!typedQuery.getResultList().isEmpty()) {
+//            return entityManager.find(getEntityClass(), id);
+//        } else {
+//            return null;
+//        }
     }
 
     @Override
     public T findById_lazyLoadingHack(EntityManager entityManager, ID id) {
-        T entity = entityManager.find(entityClass, id);
+        T entity = entityManager.find(getEntityClass(), id);
 
         // https://stackoverflow.com/questions/51837798/get-associated-getter-setter-of-field-member-variable
         // Claude.ai can simplify this (see info.txt), but this is how i wrote it.
@@ -77,8 +87,8 @@ public class GenericRepositoryImpl<T, ID> implements GenericRepository<T, ID> {
 
     @Override
     public List<T> findAll(EntityManager entityManager) {
-        CriteriaQuery<T> criteriaQuery = entityManager.getCriteriaBuilder().createQuery(entityClass);
-        criteriaQuery.select(criteriaQuery.from(entityClass));
+        CriteriaQuery<T> criteriaQuery = entityManager.getCriteriaBuilder().createQuery(getEntityClass());
+        criteriaQuery.select(criteriaQuery.from(getEntityClass()));
         return entityManager.createQuery(criteriaQuery).getResultList();
     }
 
@@ -103,7 +113,7 @@ public class GenericRepositoryImpl<T, ID> implements GenericRepository<T, ID> {
 //    public boolean isDetached(EntityManager em, T entity) {
 //        return entity.getId() != 0  // must not be transient
 //                && !em.contains(entity)  // must not be managed now
-//                && em.find(entityClass, entity.getId()) != null;  // must not have been removed
+//                && em.find(getEntityClass(), entity.getId()) != null;  // must not have been removed
 //
 //        try{
 //            Method getId = entity.getClass().getDeclaredMethod("getId");

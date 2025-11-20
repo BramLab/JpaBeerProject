@@ -2,7 +2,7 @@ package app;
 
 import java.util.Scanner;
 
-public class Helper {
+public class InputHelper {
 
     static public String scanString(String msg){
         System.out.print(msg);
