@@ -69,8 +69,8 @@ public class CategoryService {
     }
 
     public List<Category> findCategoriesByName(String name){
-        EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
-        return categoryRepository.findCategoriesByName(em, name);
+            EntityManager em = JpaConfig.getEntityManagerFactory().createEntityManager();
+            return categoryRepository.findCategoriesByName(em, name);
     }
 
 

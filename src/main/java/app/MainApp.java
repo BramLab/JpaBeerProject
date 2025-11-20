@@ -70,7 +70,7 @@ public class MainApp {
     
     void findBrewersByName(){
         List<Brewer> brewers = brewerService.findBrewersByName(scanString("Naam: "));
-        if (brewers.size() > 0) {
+        if (brewers != null && brewers.size() > 0) {
             for(Brewer brewer : brewers){
                 System.out.println(brewer.toString());
             }
@@ -93,8 +93,10 @@ public class MainApp {
 
     void findAllBrewers(){
         List<Brewer> brewers = brewerService.findAll();
-        for(Brewer brewer : brewers){
-            System.out.println(brewer.toString());
+        if (brewers != null && brewers.size() > 0) {
+            for(Brewer brewer : brewers){
+                System.out.println(brewer.toString());
+            }
         }
     }
 
@@ -149,29 +151,37 @@ public class MainApp {
 
     void findAllBeers(){
         List<Beer> beers = beerService.findAll();
-        for(Beer beer : beers){
-            System.out.println(beer.toString());
+        if (beers != null && beers.size() > 0) {
+            for(Beer beer : beers){
+                System.out.println(beer.toString());
+            }
         }
     }
 
     void findBeersByCategory(){
         List<Beer> beers = beerService.findByCategoryId(scanLong("Id: "));
-        for(Beer beer : beers){
-            System.out.println(beer.toString());
+        if(beers != null && beers.size() > 0){
+            for(Beer beer : beers){
+                System.out.println(beer.toString());
+            }
         }
     }
 
     void findBeersByBrewerId(){
         List<Beer> beers = beerService.findByBrewerId(scanLong("Id: "));
-        for(Beer beer : beers){
-            System.out.println(beer.toString());
+        if(beers != null && beers.size() > 0){
+            for(Beer beer : beers){
+                System.out.println(beer.toString());
+            }
         }
     }
 
     void findBeersCheaperThan(){
         List<Beer> beers = beerService.findBeersCheaperThan(scanFloat("Limietprijs (excl): "));
-        for(Beer beer : beers){
-            System.out.println(beer.toString());
+        if(beers != null && beers.size() > 0){
+            for(Beer beer : beers){
+                System.out.println(beer.toString());
+            }
         }
     }
 
@@ -231,8 +241,10 @@ public class MainApp {
 
     void findAllCategories(){
         List<Category> categories = categoryService.findAll();
-        for(Category category : categories){
-            System.out.println(category.toString());
+        if (categories != null && categories.size() > 0) {
+            for(Category category : categories){
+                System.out.println(category.toString());
+            }
         }
     }
 
@@ -260,7 +272,7 @@ public class MainApp {
 
     void findCategoriesByName(){
         List<Category> categories = categoryService.findCategoriesByName(scanString("Naam: "));
-        if (categories.size() > 0) {
+        if (categories != null && categories.size() > 0) {
             for(Category category : categories){
                 System.out.println(category.toString());
             }
