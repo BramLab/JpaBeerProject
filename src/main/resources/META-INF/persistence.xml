@@ -7,7 +7,7 @@
             <property name="jakarta.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver"/>
             <property name="jakarta.persistence.jdbc.url" value="jdbc:mysql://localhost/belgium_beerdb"/>
             <property name="jakarta.persistence.jdbc.user" value="intec"/>
-            <property name="jakarta.persistence.jdbc.password" value="intec-123"/>
+            <property name="jakarta.persistence.jdbc.password" value="***"/>
 
 <!-- https://stackoverflow.com/questions/58375169/how-to-solve-using-hibernate-built-in-connection-pool-not-for-production-use-->
             <property name="hibernate.connection.pool_size" value="10" />
