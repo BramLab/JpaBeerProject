@@ -1,6 +1,8 @@
 package app;
 
 import config.JpaConfig;
+//import config.JsonImportSimple;
+import config.JsonImportSimple;
 import model.Beer;
 import model.Brewer;
 import model.Category;
@@ -33,10 +35,16 @@ public class MainApp {
         menu.addMenuOption("1", "Brouwerijen", () -> mainApp.manageBrewers() );
         menu.addMenuOption("2", "Bieren", () -> mainApp.manageBeers() );
         menu.addMenuOption("3", "Categorieën", () -> mainApp.manageCategories() );
+        menu.addMenuOption("4", "Import", () -> mainApp.importBeers() );
         menu.addMenuOption("0", "Exit", () -> {});
         menu.run();
 
         JpaConfig.shutdown();
+    }
+
+    void importBeers(){
+        JsonImportSimple jsonImportSimple = new JsonImportSimple();
+        jsonImportSimple.importBeers();
     }
 
     void manageBrewers(){
